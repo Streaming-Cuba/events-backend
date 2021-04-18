@@ -9,6 +9,9 @@ Logs/
 project.lock.json
 .vs/
 
+# VS Code
+.vscode
+
 # mstest test results
 TestResults
 

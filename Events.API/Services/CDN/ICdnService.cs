@@ -1,6 +1,4 @@
-﻿
-using Events.API.Models;
-
+﻿using Events.API.Models;
 using System.IO;
 
 namespace Events.API.Services.CDN

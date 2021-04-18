@@ -9,6 +9,8 @@ using CloudinaryDotNet.Actions;
 using System.IO;
 using Events.API.Models;
 
+using Account = CloudinaryDotNet.Account;
+
 namespace Events.API.Services.CDN
 {
     public class CloudinaryService : ICdnService
@@ -25,12 +27,8 @@ namespace Events.API.Services.CDN
             var apiKey = configuration[CLOUDINARY_API_KEY_FIELD];
             var apiSecret = configuration[CLOUDINARY_API_SECRET_FIELD];
 
-
-
             Account = new Account(name, apiKey, apiSecret);
             Cloudinary = new Cloudinary(Account);
-
-           
         }
         public CdnUploadResult UploadPhoto(string name, Stream stream, string tags = "", string folder = "")
         {
@@ -39,7 +37,7 @@ namespace Events.API.Services.CDN
 
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(webpFileName, stream),
+                File = new FileDescription(name, stream),
                 Tags = tags,
                 Folder = folder,
             };
