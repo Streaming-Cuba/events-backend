@@ -5,6 +5,6 @@ namespace Events.API.Services.CDN
 {
     public interface ICdnService
     {
-        public CdnUploadResult UploadPhoto(string name, Stream stream, string tags = "", string folder = "");
+        CdnUploadResult UploadPhoto(string name, Stream stream, string tags = "", string folder = "");
     }
 }

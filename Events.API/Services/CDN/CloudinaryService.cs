@@ -41,8 +41,8 @@ namespace Events.API.Services.CDN
                 Tags = tags,
                 Folder = folder,
             };
-            var uploadResult = Cloudinary.Upload(uploadParams);
 
+            var uploadResult = Cloudinary.Upload(uploadParams);
             return uploadResult.ToAbstractResult();
         }
     }

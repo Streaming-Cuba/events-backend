@@ -11,23 +11,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/api/v1/[controller]")]
     [ApiController]
     public class MediaController : ControllerBase
     {
         public MediaController(ICdnService cdnService)
         {
-            CdnService = cdnService;
+            _cdnservice = cdnService;
         }
 
-        public ICdnService CdnService { get; }
+        public readonly ICdnService _cdnservice;
 
         [HttpPost("upload")]
         public IActionResult UploadPhoto(IFormFile photo)
         {
 
             var stream = photo.OpenReadStream();
-            var result = CdnService.UploadPhoto(photo.FileName, stream);
+            var result = _cdnservice.UploadPhoto(photo.FileName, stream);
 
 
             return new OkObjectResult(new
