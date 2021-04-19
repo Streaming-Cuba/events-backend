@@ -42,6 +42,10 @@ namespace Events.API.Models
         public string ShortCoverPath { get; set; }
         
         public IEnumerable<Interation> Interations { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime ModifiedAt { get; set; }
     }
 
 }
