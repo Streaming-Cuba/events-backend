@@ -13,6 +13,6 @@ namespace Events.API.Models
 
         public string Description { get; set; }
 
-        public IEnumerable<Permission> Permissions { get; set; }
+        public ICollection<RolePermission> RolePermissions { get; set; }
     }
 }

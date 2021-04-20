@@ -25,10 +25,8 @@ namespace Events.API.Controllers
         [HttpPost("upload")]
         public IActionResult UploadPhoto(IFormFile photo)
         {
-
             var stream = photo.OpenReadStream();
             var result = _cdnservice.UploadPhoto(photo.FileName, stream);
-
 
             return new OkObjectResult(new
             {

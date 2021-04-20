@@ -30,9 +30,11 @@ namespace Events.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AccountContext>(opt => opt.UseInMemoryDatabase("AccountTestDatabase"));
+            services.AddDbContext<AccountContext>(opt => opt.UseSqlite("Data Source=/home/jorgeajimenezl/testing.db"));
             
             services.AddSingleton<ICdnService, CloudinaryService>();
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();
         }

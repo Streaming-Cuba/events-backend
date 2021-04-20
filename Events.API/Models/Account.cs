@@ -19,9 +19,6 @@ namespace Events.API.Models {
         public Role Role { get; set; }
 
         [Required]
-        public string Username { get; set; }
-
-        [Required]
         public string Password { get; set; }
 
         public DateTime CreatedAt { get; set; }
