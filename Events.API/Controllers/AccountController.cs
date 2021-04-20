@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Events.API.Data;
 using Events.API.DTO;
+using Events.API.Helpers;
 using Events.API.Models;
 using Events.API.Services.CDN;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
@@ -19,18 +21,41 @@ namespace Events.API.Controllers
     {
         private readonly AccountContext _context;
         private readonly IMapper _mapper;
+        private readonly PasswordHasher<string> _passwordHasher;
 
         public AccountController(AccountContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
+            _passwordHasher = new PasswordHasher<string>();
         }
 
         [HttpPost]
         [Route("/api/v1/[controller]")]
-        public async Task<IActionResult> CreateAccount()
+        public async Task<IActionResult> CreateAccount([FromBody]AccountCreateDTO account)
         {
-            // _context.Accounts.Add()
+            var role = _context.Roles.FirstOrDefault(x => x.Id == account.RoleId);
+            if (role == null)
+                return ValidationProblem();
+            
+            // validate data
+            if (!account.Email.IsEmail() ||
+                (!string.IsNullOrWhiteSpace(account.AvatarPath) && !account.AvatarPath.IsUrl()) ||
+                string.IsNullOrWhiteSpace(account.LastName) ||
+                string.IsNullOrWhiteSpace(account.Name) ||
+                string.IsNullOrWhiteSpace(account.Password))
+                return ValidationProblem();
+
+
+            var _account = _mapper.Map<Account>(account);
+
+            _account.CreatedAt = DateTime.UtcNow;
+            _account.ModifiedAt = DateTime.UtcNow;
+            _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
+            _account.Role = role;
+
+            _context.Accounts.Add(_account);
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
@@ -40,8 +65,8 @@ namespace Events.API.Controllers
             var _role = _mapper.Map<Role>(role);
             
             // Check permissions
-            if (role.Permissions != null) {
-                foreach (var permissionId in role.Permissions) 
+            if (role.PermissionsId != null) {
+                foreach (var permissionId in role.PermissionsId) 
                 {
                     var permission = _context.Permissions.FirstOrDefault(x => x.Id == permissionId);
                     if (permission == null)
@@ -56,7 +81,7 @@ namespace Events.API.Controllers
 
             _context.Roles.Add(_role);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateRole), _role);
+            return Ok();
         }
 
         [HttpPost]
@@ -67,7 +92,7 @@ namespace Events.API.Controllers
             
             _context.Permissions.Add(_permission);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreatePermission), _permission);
+            return Ok();
         }
     }
 }

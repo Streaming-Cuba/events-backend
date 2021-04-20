@@ -12,8 +12,10 @@ namespace Events.API.Data
         
         public AccountContext(DbContextOptions<AccountContext> options) : base(options) { }
 
-        // protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        //     modelBuilder.Entity<Role>().Property(x => x.RolePermissions).
-        // }
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<Account>()
+                .HasIndex(x => x.Email)
+                .IsUnique();
+        }
     }
 }
