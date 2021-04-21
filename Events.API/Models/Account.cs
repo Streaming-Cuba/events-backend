@@ -16,7 +16,11 @@ namespace Events.API.Models {
 
         public string AvatarPath { get; set; }
 
+        [Required]
         public Role Role { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
 
         [Required]
         public string Password { get; set; }
