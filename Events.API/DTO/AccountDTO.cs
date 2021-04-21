@@ -22,6 +22,17 @@ namespace Events.API.DTO
         public ICollection<int> PermissionsId { get; set; }
     }
 
+    public class RoleReadDTO
+    {
+        public string Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public ICollection<int> PermissionsId { get; set; }
+    }
+
     public class AccountCreateDTO
     {
         public string Name { get; set; }

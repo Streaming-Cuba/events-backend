@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,7 +61,7 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Route("/api/v1/[controller]")]
-        public ActionResult<AccountReadDTO> GetAccountByEmail([FromQuery] string email)
+        public ActionResult<AccountReadDTO> GetAccountByEmail([FromQuery][Required] string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 return ValidationProblem();
@@ -73,6 +74,7 @@ namespace Events.API.Controllers
 
 
         [Route("/api/v1/[controller]/role")]
+        [HttpPost]
         public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
         {
             var _role = _mapper.Map<Role>(role);
@@ -99,6 +101,10 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        [Route("/api/v1/[controller]/role")]
+        public ActionResult<ICollection<Role>> GetRoles() => _context.Roles.ToArray();
+
         [HttpPost]
         [Route("/api/v1/[controller]/permission")]
         public async Task<IActionResult> CreatePermission([FromBody] PermissionCreateDTO permission)
@@ -109,5 +115,9 @@ namespace Events.API.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpGet]
+        [Route("/api/v1/[controller]/permission")]
+        public ActionResult<ICollection<Permission>> GetPermissions() => _context.Permissions.ToArray();
     }
 }
