@@ -11,6 +11,7 @@ namespace Events.API.Profiles {
             CreateMap<RoleCreateDTO, Role>();
             CreateMap<AccountCreateDTO, Account>();
             CreateMap<Account, AccountReadDTO>();
+            CreateMap<Role, RoleReadDTO>();
         }
     }
 }

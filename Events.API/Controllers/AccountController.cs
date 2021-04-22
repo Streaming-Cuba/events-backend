@@ -103,7 +103,30 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Route("/api/v1/[controller]/role")]
-        public ActionResult<ICollection<Role>> GetRoles() => _context.Roles.ToArray();
+        public ActionResult<ICollection<RoleReadDTO>> GetRoles() 
+        {
+            // Optimize
+
+            Func<Role, RoleReadDTO> converter = (Role x) => {
+                var role = _mapper.Map<RoleReadDTO>(x);
+                role.PermissionsId = _context.RolePermissions.Where(x => x.RoleId == role.Id).Select(x => x.PermissionId).ToList();
+                return role;
+            };
+            
+            return _context.Roles.Select(x => converter(x)).ToArray();            
+        }
+
+        [HttpGet]
+        [Route("/api/v1/[controller]/role/{id}")]
+        public async Task<ActionResult<RoleReadDTO>> GetRoleById([FromRoute] int id)
+        {
+            var role = await _context.Roles.FindAsync(id);
+            if (role == null)
+                return NotFound(id);
+            var _role = _mapper.Map<RoleReadDTO>(role);
+            _role.PermissionsId = _context.RolePermissions.Where(x => x.RoleId == id).Select(x => x.PermissionId).ToList();
+            return _role;
+        }
 
         [HttpPost]
         [Route("/api/v1/[controller]/permission")]
@@ -119,5 +142,15 @@ namespace Events.API.Controllers
         [HttpGet]
         [Route("/api/v1/[controller]/permission")]
         public ActionResult<ICollection<Permission>> GetPermissions() => _context.Permissions.ToArray();
+
+        [HttpGet]
+        [Route("/api/v1/[controller]/permission/{id}")]
+        public async Task<ActionResult<Permission>> GetPermissionById([FromRoute]int id)
+        {
+            var permission = await _context.Permissions.FindAsync(id);
+            if (permission == null)
+                return NotFound(id);
+            return permission;
+        }
     }
 }
