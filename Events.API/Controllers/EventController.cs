@@ -14,8 +14,6 @@ namespace Events.API.Controllers
         {
             _context = context;
             _mapper = mapper;
-        }
-
-        
+        }        
     }
 }

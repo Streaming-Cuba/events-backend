@@ -13,6 +13,6 @@ namespace Events.API.Models
 
         public string Description { get; set; }
 
-        public ICollection<RolePermission> RolePermissions { get; set; }
+        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,9 +8,8 @@ using Events.API.Data;
 using Events.API.DTO;
 using Events.API.Helpers;
 using Events.API.Models;
-using Events.API.Services.CDN;
 
-using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,7 +41,7 @@ namespace Events.API.Controllers
                 string.IsNullOrWhiteSpace(account.Password))
                 return ValidationProblem();
 
-            var role = _context.Roles.FirstOrDefault(x => x.Id == account.RoleId);
+            var role = await _context.Roles.FindAsync(account.RoleId);
             if (role == null)
                 return ValidationProblem();
 
@@ -52,24 +50,34 @@ namespace Events.API.Controllers
             _account.CreatedAt = DateTime.UtcNow;
             _account.ModifiedAt = DateTime.UtcNow;
             _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
-            // _account.Role = role;
+            _account.Role = role;
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
-            return Ok();
+            return CreatedAtAction(nameof(CreateAccount), _account.Id);
         }
 
         [HttpGet]
         [Route("/api/v1/[controller]")]
-        public ActionResult<AccountReadDTO> GetAccountByEmail([FromQuery][Required] string email)
+        public async Task<ActionResult<AccountReadDTO>> GetAccountByEmail([FromQuery][Required] string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 return ValidationProblem();
 
-            var account = _context.Accounts.FirstOrDefault(x => x.Email == email);
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
             if (account != null)
                 return _mapper.Map<AccountReadDTO>(account);
             return NotFound(email);
+        }
+
+        [HttpGet]
+        [Route("/api/v1/[controller]/{id}")]
+        public async Task<ActionResult<AccountReadDTO>> GetAccountById([FromRoute] int id)
+        {
+            var account = await _context.Accounts.FindAsync(id);
+            if (account != null)
+                return _mapper.Map<AccountReadDTO>(account);
+            return NotFound(id);
         }
 
 
@@ -78,17 +86,16 @@ namespace Events.API.Controllers
         public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
         {
             var _role = _mapper.Map<Role>(role);
-
             // Check permissions
             if (role.PermissionsId != null)
             {
                 foreach (var permissionId in role.PermissionsId)
                 {
-                    var permission = _context.Permissions.FirstOrDefault(x => x.Id == permissionId);
+                    var permission = await _context.Permissions.FindAsync(permissionId);
                     if (permission == null)
                         return ValidationProblem();
 
-                    _context.RolePermissions.Add(new RolePermission
+                    _role.RolePermissions.Add(new RolePermission
                     {
                         Permission = permission,
                         Role = _role,
@@ -96,35 +103,34 @@ namespace Events.API.Controllers
                 }
             }
 
-            await _context.Roles.AddAsync(_role);
+            var r = await _context.Roles.AddAsync(_role);    
             await _context.SaveChangesAsync();
-            return Ok();
+
+            return CreatedAtAction(nameof(CreateRole), _role.Id);
         }
 
         [HttpGet]
         [Route("/api/v1/[controller]/role")]
         public ActionResult<ICollection<RoleReadDTO>> GetRoles() 
         {
-            // Optimize
-
             Func<Role, RoleReadDTO> converter = (Role x) => {
                 var role = _mapper.Map<RoleReadDTO>(x);
-                role.PermissionsId = _context.RolePermissions.Where(x => x.RoleId == role.Id).Select(x => x.PermissionId).ToList();
+                role.PermissionsId = x.RolePermissions.Select(x => x.Id).ToArray();
                 return role;
             };
             
-            return _context.Roles.Select(x => converter(x)).ToArray();            
+            return _context.Roles.Include(x => x.RolePermissions).Select(x => converter(x)).ToArray();            
         }
 
         [HttpGet]
         [Route("/api/v1/[controller]/role/{id}")]
         public async Task<ActionResult<RoleReadDTO>> GetRoleById([FromRoute] int id)
         {
-            var role = await _context.Roles.FindAsync(id);
+            var role = await _context.Roles.Include(x => x.RolePermissions).FirstOrDefaultAsync(x => x.Id == id);
             if (role == null)
                 return NotFound(id);
             var _role = _mapper.Map<RoleReadDTO>(role);
-            _role.PermissionsId = _context.RolePermissions.Where(x => x.RoleId == id).Select(x => x.PermissionId).ToList();
+            _role.PermissionsId = role.RolePermissions.Select(x => x.PermissionId).ToArray();
             return _role;
         }
 
@@ -136,7 +142,7 @@ namespace Events.API.Controllers
 
             await _context.Permissions.AddAsync(_permission);
             await _context.SaveChangesAsync();
-            return Ok();
+            return CreatedAtAction(nameof(CreatePermission), _permission.Id);
         }
 
         [HttpGet]
