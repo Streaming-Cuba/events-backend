@@ -15,7 +15,15 @@ namespace Events.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<Account>()
                 .HasIndex(x => x.Email)
-                .IsUnique();            
+                .IsUnique();   
+
+            modelBuilder.Entity<Permission>()
+                .HasIndex(x => x.Name)
+                .IsUnique();        
+                 
+            modelBuilder.Entity<Role>()
+                .HasIndex(x => x.Name)
+                .IsUnique();
         }
     }
 }
