@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace Events.API.Controllers
 {
@@ -55,16 +56,13 @@ namespace Events.API.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            // var claims = new [] {
-            //     new Claim(ClaimTypes.Name, userInfo.Id.ToString()),
-            //     new Claim(ClaimTypes.Role, userInfo.Role.Name),
-            // };
-
+            var claims = userInfo.AccountRoles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
+                                              .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
+            
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Issuer"],
-                //claims,
-                null,
+                claims,
                 expires: DateTime.Now.AddMinutes(120),
                 signingCredentials: credentials
             );
@@ -74,8 +72,8 @@ namespace Events.API.Controllers
 
         private async Task<Account> AuthenticateUser(AuthenticationModel login)
         {
-            Account account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email
-                                                                               == login.Email);
+            Account account = await _context.Accounts.Include(d => d.AccountRoles)
+                                                     .FirstOrDefaultAsync(x => x.Email == login.Email);
             // check for valid authentication
             if (account == null
                 || _passwordHasher.VerifyHashedPassword(account.Email,
