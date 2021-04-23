@@ -42,9 +42,9 @@ namespace Events.API.Controllers
                 string.IsNullOrWhiteSpace(account.Password))
                 return ValidationProblem();
 
-            var role = await _context.Roles.FindAsync(account.RoleId);
-            if (role == null)
-                return ValidationProblem();
+            // var role = await _context.Roles.FindAsync(account.RoleId);
+            // if (role == null)
+            //     return ValidationProblem();
 
             var _account = _mapper.Map<Account>(account);
 
@@ -82,33 +82,14 @@ namespace Events.API.Controllers
         }
 
 
-        // [Route("/api/v1/[controller]/role")]
-        // [HttpPost]
-        // public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
-        // {
-        //     var _role = _mapper.Map<Role>(role);
-        //     // Check permissions
-        //     if (role.PermissionsId != null)
-        //     {
-        //         foreach (var permissionId in role.PermissionsId)
-        //         {
-        //             var permission = await _context.Permissions.FindAsync(permissionId);
-        //             if (permission == null)
-        //                 return ValidationProblem();
-
-        //             _role.RolePermissions.Add(new RolePermission
-        //             {
-        //                 Permission = permission,
-        //                 Role = _role,
-        //             });
-        //         }
-        //     }
-
-        //     var r = await _context.Roles.AddAsync(_role);
-        //     await _context.SaveChangesAsync();
-
-        //     return CreatedAtAction(nameof(CreateRole), _role.Id);
-        // }
+        [Route("/api/v1/[controller]/role")]
+        [HttpPost]
+        public async Task<IActionResult> CreateRole([FromBody] Role role)
+        {
+            var r = await _context.Roles.AddAsync(role);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateRole), role);
+        }
 
         [HttpGet]
         [Route("/api/v1/[controller]/role")]
