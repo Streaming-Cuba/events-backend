@@ -4,11 +4,11 @@ WORKDIR /app
 ENV DOTNET_CLI_TELEMETRY_OPTOUT 1
 
 # copy csproj and restore as distinct layers
-COPY *.csproj ./
+COPY ./Events.API/*.csproj ./
 RUN dotnet restore
 
 # copy everything else and build
-COPY . ./
+COPY ./Events.API/ ./
 RUN dotnet publish -c Release -o out
 
 # build runtime image
