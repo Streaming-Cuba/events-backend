@@ -7,13 +7,16 @@ namespace Events.API.Data
     {
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<AccountRole> AccountRoles { get; set; }
         
         public AccountContext(DbContextOptions<AccountContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            modelBuilder.Entity<Role>()
-                .HasMany<Account>()
-                .WithMany(x => x.Role);
+            modelBuilder.Entity<AccountRole>(entity => {                
+                entity.HasOne(d => d.Account)
+                      .WithMany(p => p.AccountRoles)
+                      .HasForeignKey(d => d.AccountId);
+            });
         }
     }
 }
