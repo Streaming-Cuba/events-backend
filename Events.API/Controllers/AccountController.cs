@@ -12,6 +12,7 @@ using Events.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Events.API.Controllers
 {
@@ -103,7 +104,7 @@ namespace Events.API.Controllers
                 }
             }
 
-            var r = await _context.Roles.AddAsync(_role);    
+            var r = await _context.Roles.AddAsync(_role);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(CreateRole), _role.Id);
@@ -111,15 +112,16 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Route("/api/v1/[controller]/role")]
-        public ActionResult<ICollection<RoleReadDTO>> GetRoles() 
+        public ActionResult<ICollection<RoleReadDTO>> GetRoles()
         {
-            Func<Role, RoleReadDTO> converter = (Role x) => {
+            Func<Role, RoleReadDTO> converter = (Role x) =>
+            {
                 var role = _mapper.Map<RoleReadDTO>(x);
                 role.PermissionsId = x.RolePermissions.Select(x => x.Id).ToArray();
                 return role;
             };
-            
-            return _context.Roles.Include(x => x.RolePermissions).Select(x => converter(x)).ToArray();            
+
+            return _context.Roles.Include(x => x.RolePermissions).Select(x => converter(x)).ToArray();
         }
 
         [HttpGet]
@@ -151,7 +153,7 @@ namespace Events.API.Controllers
 
         [HttpGet]
         [Route("/api/v1/[controller]/permission/{id}")]
-        public async Task<ActionResult<Permission>> GetPermissionById([FromRoute]int id)
+        public async Task<ActionResult<Permission>> GetPermissionById([FromRoute] int id)
         {
             var permission = await _context.Permissions.FindAsync(id);
             if (permission == null)
