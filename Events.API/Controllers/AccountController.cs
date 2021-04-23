@@ -42,15 +42,24 @@ namespace Events.API.Controllers
                 string.IsNullOrWhiteSpace(account.Password))
                 return ValidationProblem();
 
-            // var role = await _context.Roles.FindAsync(account.RoleId);
-            // if (role == null)
-            //     return ValidationProblem();
-
             var _account = _mapper.Map<Account>(account);
 
             _account.CreatedAt = DateTime.UtcNow;
             _account.ModifiedAt = DateTime.UtcNow;
             _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
+            _account.AccountRoles = new List<AccountRole>();
+            
+            foreach (var roleId in account.RolesId) {
+                var role = await _context.Roles.FindAsync(roleId);
+                if (role == null)
+                    return BadRequest(new {
+                        error = $"The role with id: {roleId} don't exists"
+                    });
+                _account.AccountRoles.Add(new AccountRole{
+                    Account = _account,
+                    Role = role
+                });
+            }
             // _account.Role = role;
 
             await _context.Accounts.AddAsync(_account);
