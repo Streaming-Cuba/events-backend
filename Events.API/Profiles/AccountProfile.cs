@@ -7,7 +7,6 @@ namespace Events.API.Profiles {
     {
         public PermissionProfile() 
         {
-            CreateMap<PermissionCreateDTO, Permission>();
             CreateMap<RoleCreateDTO, Role>();
             CreateMap<AccountCreateDTO, Account>();
             CreateMap<Account, AccountReadDTO>();

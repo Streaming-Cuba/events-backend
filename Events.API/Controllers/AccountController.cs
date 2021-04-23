@@ -51,7 +51,7 @@ namespace Events.API.Controllers
             _account.CreatedAt = DateTime.UtcNow;
             _account.ModifiedAt = DateTime.UtcNow;
             _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
-            _account.Role = role;
+            // _account.Role = role;
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
@@ -82,83 +82,46 @@ namespace Events.API.Controllers
         }
 
 
-        [Route("/api/v1/[controller]/role")]
-        [HttpPost]
-        public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
-        {
-            var _role = _mapper.Map<Role>(role);
-            // Check permissions
-            if (role.PermissionsId != null)
-            {
-                foreach (var permissionId in role.PermissionsId)
-                {
-                    var permission = await _context.Permissions.FindAsync(permissionId);
-                    if (permission == null)
-                        return ValidationProblem();
+        // [Route("/api/v1/[controller]/role")]
+        // [HttpPost]
+        // public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
+        // {
+        //     var _role = _mapper.Map<Role>(role);
+        //     // Check permissions
+        //     if (role.PermissionsId != null)
+        //     {
+        //         foreach (var permissionId in role.PermissionsId)
+        //         {
+        //             var permission = await _context.Permissions.FindAsync(permissionId);
+        //             if (permission == null)
+        //                 return ValidationProblem();
 
-                    _role.RolePermissions.Add(new RolePermission
-                    {
-                        Permission = permission,
-                        Role = _role,
-                    });
-                }
-            }
+        //             _role.RolePermissions.Add(new RolePermission
+        //             {
+        //                 Permission = permission,
+        //                 Role = _role,
+        //             });
+        //         }
+        //     }
 
-            var r = await _context.Roles.AddAsync(_role);
-            await _context.SaveChangesAsync();
+        //     var r = await _context.Roles.AddAsync(_role);
+        //     await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(CreateRole), _role.Id);
-        }
+        //     return CreatedAtAction(nameof(CreateRole), _role.Id);
+        // }
 
         [HttpGet]
         [Route("/api/v1/[controller]/role")]
-        public ActionResult<ICollection<RoleReadDTO>> GetRoles()
-        {
-            Func<Role, RoleReadDTO> converter = (Role x) =>
-            {
-                var role = _mapper.Map<RoleReadDTO>(x);
-                role.PermissionsId = x.RolePermissions.Select(x => x.Id).ToArray();
-                return role;
-            };
-
-            return _context.Roles.Include(x => x.RolePermissions).Select(x => converter(x)).ToArray();
-        }
+        public async Task<ActionResult<ICollection<Role>>> GetRoles() => await _context.Roles.ToArrayAsync();
 
         [HttpGet]
         [Route("/api/v1/[controller]/role/{id}")]
-        public async Task<ActionResult<RoleReadDTO>> GetRoleById([FromRoute] int id)
+        public async Task<ActionResult<Role>> GetRoleById([FromRoute] int id)
         {
-            var role = await _context.Roles.Include(x => x.RolePermissions).FirstOrDefaultAsync(x => x.Id == id);
+            var role = await _context.Roles.FindAsync(id);
             if (role == null)
                 return NotFound(id);
-            var _role = _mapper.Map<RoleReadDTO>(role);
-            _role.PermissionsId = role.RolePermissions.Select(x => x.PermissionId).ToArray();
-            return _role;
-        }
-
-        [HttpPost]
-        [Route("/api/v1/[controller]/permission")]
-        public async Task<IActionResult> CreatePermission([FromBody] PermissionCreateDTO permission)
-        {
-            var _permission = _mapper.Map<Permission>(permission);
-
-            await _context.Permissions.AddAsync(_permission);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreatePermission), _permission.Id);
-        }
-
-        [HttpGet]
-        [Route("/api/v1/[controller]/permission")]
-        public ActionResult<ICollection<Permission>> GetPermissions() => _context.Permissions.ToArray();
-
-        [HttpGet]
-        [Route("/api/v1/[controller]/permission/{id}")]
-        public async Task<ActionResult<Permission>> GetPermissionById([FromRoute] int id)
-        {
-            var permission = await _context.Permissions.FindAsync(id);
-            if (permission == null)
-                return NotFound(id);
-            return permission;
+            return role;
         }
     }
 }
