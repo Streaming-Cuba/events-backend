@@ -32,6 +32,7 @@ namespace Events.API.Controllers
 
         [HttpPost]
         [Route("/api/v1/[controller]")]
+        [Authorize(Roles="Administrator")]
         public async Task<IActionResult> CreateAccount([FromBody] AccountCreateDTO account)
         {
             // validate data
@@ -48,7 +49,7 @@ namespace Events.API.Controllers
             _account.ModifiedAt = DateTime.UtcNow;
             _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
             _account.AccountRoles = new List<AccountRole>();
-            
+
             foreach (var roleId in account.RolesId) {
                 var role = await _context.Roles.FindAsync(roleId);
                 if (role == null)
@@ -93,6 +94,7 @@ namespace Events.API.Controllers
 
         [Route("/api/v1/[controller]/role")]
         [HttpPost]
+        [Authorize(Roles="Administrator")]
         public async Task<IActionResult> CreateRole([FromBody] Role role)
         {
             var r = await _context.Roles.AddAsync(role);

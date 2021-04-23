@@ -73,6 +73,7 @@ namespace Events.API.Controllers
         private async Task<Account> AuthenticateUser(AuthenticationModel login)
         {
             Account account = await _context.Accounts.Include(d => d.AccountRoles)
+                                                     .ThenInclude(p => p.Role)
                                                      .FirstOrDefaultAsync(x => x.Email == login.Email);
             // check for valid authentication
             if (account == null
