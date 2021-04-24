@@ -3,9 +3,9 @@ using Events.API.DTO;
 using Events.API.Models;
 
 namespace Events.API.Profiles {
-    public class PermissionProfile : Profile 
+    public class AccountProfile : Profile 
     {
-        public PermissionProfile() 
+        public AccountProfile() 
         {
             CreateMap<AccountCreateDTO, Account>();
             CreateMap<Account, AccountReadDTO>();
