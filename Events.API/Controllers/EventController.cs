@@ -24,7 +24,16 @@ namespace Events.API.Controllers
         public ActionResult<Event> ListEvents()
         {
             var events = _context.Events.ToList();
-            return CreatedAtAction(nameof(ListEvents), events);
+            return Ok(events);
+        }
+
+        [HttpGet("{identifier}")]
+        public ActionResult<Event> EventByIdentifier(string identifier)
+        {
+            var item = _context.Events.SingleOrDefault(x => x.Identifier == identifier);
+            if (item == null)
+                return NotFound();
+            return Ok(item);
         }
 
         #region Create models and push to database
