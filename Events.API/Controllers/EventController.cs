@@ -52,7 +52,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), social);
         }
 
-        [HttpPost("socials")]
+        [HttpPost("social/platform-type")]
         public async Task<ActionResult<SocialPlatformType>> CreateSocialPlatformType([FromBody] SocialPlatformType socialPlatformType)
         {
             await _context.SocialPlatformTypes.AddAsync(socialPlatformType);
@@ -94,9 +94,8 @@ namespace Events.API.Controllers
         #endregion
 
         #region Modify models 
-        [HttpPatch]
-        [Route("/api/v1/[controller]/social/{id}")]
-        public async Task<ActionResult<Event>> ModifySocial([FromRoute]int id, [FromBody] SocialCreateDTO social)
+        [HttpPatch("social/{id}")]
+        public async Task<ActionResult<Event>> EditSocial([FromRoute]int id, [FromBody] SocialCreateDTO social)
         {
             var _social = await _context.Socials.FindAsync(id);
             if (_social == null)
@@ -112,7 +111,20 @@ namespace Events.API.Controllers
             // hand make
             _social = _mapper.Map<SocialCreateDTO, Social>(social, _social);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateSocial), _social);
+            return Ok();
+        }
+
+        [HttpPatch("group/item-type/{id}")]
+        public async Task<ActionResult<GroupItemType>> EditGroupItemType([FromRoute]int id, [FromBody] GroupItemType groupItemType)
+        {
+            var _groupItemType = await _context.GroupItemTypes.FindAsync(id);
+            if (_groupItemType == null)
+                return NotFound(id);
+
+            // hand make
+            _groupItemType = _mapper.Map<GroupItemType, GroupItemType>(groupItemType, _groupItemType);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
         #endregion
     }
