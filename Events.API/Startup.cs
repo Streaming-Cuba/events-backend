@@ -68,7 +68,7 @@ namespace Events.API
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Events Backend API");
-                c.RoutePrefix = "/docs";
+                c.RoutePrefix = string.Empty;
             });
 
             if (env.IsDevelopment())
