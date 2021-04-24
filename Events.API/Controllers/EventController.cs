@@ -3,10 +3,12 @@ using AutoMapper;
 using Events.API.Data;
 using Events.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Events.API.Controllers
 {
     [ApiController]
+    [Route("/api/v1/event")]
     public class EventController : ControllerBase
     {
         private readonly EventContext _context;
@@ -18,9 +20,15 @@ namespace Events.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public ActionResult<Event> ListEvents()
+        {
+            var events = _context.Events.ToList();
+            return CreatedAtAction(nameof(ListEvents), events);
+        }
+
         #region Create models and push to database
-        [HttpPost]
-        [Route("/api/v1/[controller]/social")]
+        [HttpPost("social")]
         public async Task<ActionResult<Event>> CreateSocial([FromBody] Social social)
         {
             await _context.Socials.AddAsync(social);
@@ -28,8 +36,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), social);
         }
 
-        [HttpPost]
-        [Route("/api/v1/[controller]/socials")]
+        [HttpPost("socials")]
         public async Task<ActionResult<SocialPlatformType>> CreateSocialPlatformType([FromBody] SocialPlatformType socialPlatformType)
         {
             await _context.SocialPlatformTypes.AddAsync(socialPlatformType);
@@ -37,8 +44,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocialPlatformType), socialPlatformType);
         }
 
-        [HttpPost]
-        [Route("/api/v1/[controller]/category")]
+        [HttpPost("category")]
         public async Task<ActionResult<NCategory>> CreateCategory([FromBody] NCategory category)
         {
             await _context.Categories.AddAsync(category);
@@ -46,8 +52,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), category);
         }
 
-        [HttpPost]
-        [Route("/api/v1/[controller]/interation")]
+        [HttpPost("interation")]
         public async Task<ActionResult<Interation>> CreateInteration([FromBody] Interation interation)
         {
             await _context.Interations.AddAsync(interation);
@@ -55,8 +60,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateInteration), interation);
         }
 
-        [HttpPost]
-        [Route("/api/v1/[controller]/eventstatus")]
+        [HttpPost("event-status")]
         public async Task<ActionResult<NEventStatus>> CreateEventStatus([FromBody] NEventStatus eventStatus)
         {
             await _context.EventStatuses.AddAsync(eventStatus);
@@ -64,8 +68,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateEventStatus), eventStatus);
         }
 
-        [HttpPost]
-        [Route("/api/v1/[controller]/group/itemtype")]
+        [HttpPost("group/item-type")]
         public async Task<ActionResult<GroupItemType>> CreateGroupItemType([FromBody] GroupItemType groupItemType)
         {
             await _context.GroupItemTypes.AddAsync(groupItemType);

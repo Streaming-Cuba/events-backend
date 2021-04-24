@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Events.API
 {
@@ -68,7 +69,7 @@ namespace Events.API
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Events Backend API");
-                c.RoutePrefix = "/docs";
+                c.RoutePrefix = string.Empty;
             });
 
             if (env.IsDevelopment())
@@ -76,7 +77,11 @@ namespace Events.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             app.UseRouting();
             
             app.UseAuthentication();
