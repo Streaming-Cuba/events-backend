@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Events.API
 {
@@ -75,6 +76,11 @@ namespace Events.API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseHttpsRedirection();
             app.UseRouting();
