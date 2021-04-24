@@ -1,4 +1,4 @@
-using Events.API.Data;
+﻿using Events.API.Data;
 using Events.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +16,15 @@ using System.Collections.Generic;
 
 namespace Events.API.Controllers
 {
-    [Route("/api/v1/[controller]")]
+    [Route("/api/v1/auth")]
     [ApiController]
-    public class LoginController : Controller
+    public class AuthController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly AccountContext _context;
         private readonly PasswordHasher<string> _passwordHasher;
 
-        public LoginController(IConfiguration configuration,
+        public AuthController(IConfiguration configuration,
                                 AccountContext context)
         {
             _configuration = configuration;
@@ -33,8 +33,8 @@ namespace Events.API.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> Login([FromBody] AuthenticationModel login)
+        [HttpPost("sign-in")]
+        public async Task<IActionResult> SignIn([FromBody] AuthenticationModel login)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -56,8 +56,9 @@ namespace Events.API.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = userInfo.Roles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
-                                              .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
+            var claims = userInfo.Roles
+                .Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
+                .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
@@ -72,14 +73,14 @@ namespace Events.API.Controllers
 
         private async Task<Account> AuthenticateUser(AuthenticationModel login)
         {
-            Account account = await _context.Accounts.Include(d => d.Roles)
-                                                     .ThenInclude(p => p.Role)
-                                                     .FirstOrDefaultAsync(x => x.Email == login.Email);
+            var account = await _context.Accounts
+                .Include(d => d.Roles)
+                .ThenInclude(p => p.Role)
+                .FirstOrDefaultAsync(x => x.Email == login.Email);
             // check for valid authentication
-            if (account == null
-                || _passwordHasher.VerifyHashedPassword(account.Email,
-                                                        account.Password,
-                                                        login.Password) != PasswordVerificationResult.Success)
+            var passwordVerification = _passwordHasher
+                .VerifyHashedPassword(account.Email, account.Password, login.Password);
+            if (account == null || passwordVerification == PasswordVerificationResult.Success)
                 return null;
 
             return account;
