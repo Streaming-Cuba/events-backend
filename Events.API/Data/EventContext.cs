@@ -23,6 +23,8 @@ namespace Events.API.Data
 
         public DbSet<GroupItem> GroupItems { get; set; }
 
+        public DbSet<GroupItemType> GroupItemTypes { get; set; }
+
         public DbSet<EventTag> EventTags { get; set; }
         
         public EventContext(DbContextOptions<EventContext> options) : base(options) { }

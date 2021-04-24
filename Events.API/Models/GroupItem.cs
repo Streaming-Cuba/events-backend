@@ -20,7 +20,7 @@ namespace Events.API.Models
 
         public ICollection<GroupItemSocialSocial> Socials { get; set; }
 
-        public string Metadata { get; set; }
+        public GroupItemMetadata Metadata { get; set; }
 
         public GroupItemType Type { get; set; }
 

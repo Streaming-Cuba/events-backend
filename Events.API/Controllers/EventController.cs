@@ -64,6 +64,14 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateEventStatus), eventStatus);
         }
 
+        [HttpPost]
+        [Route("/api/v1/[controller]/group/itemtype")]
+        public async Task<ActionResult<GroupItemType>> CreateGroupItemType([FromBody] GroupItemType groupItemType)
+        {
+            await _context.GroupItemTypes.AddAsync(groupItemType);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateGroupItemType), groupItemType);
+        }
         #endregion
     }
 }
