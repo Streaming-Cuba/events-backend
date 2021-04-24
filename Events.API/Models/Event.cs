@@ -33,9 +33,9 @@ namespace Events.API.Models
 
         public NCategory Category { get; set; }
 
-        public ICollection<EventTag> EventTags { get; set; }
+        public ICollection<EventTag> Tags { get; set; }
 
-        public ICollection<Social> Socials { get; set; }
+        public ICollection<EventSocial> Socials { get; set; }
 
         public string CoverPath { get; set; }
 

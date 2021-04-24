@@ -14,7 +14,7 @@ namespace Events.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<AccountRole>(entity => {                
                 entity.HasOne(d => d.Account)
-                      .WithMany(p => p.AccountRoles)
+                      .WithMany(p => p.Roles)
                       .HasForeignKey(d => d.AccountId);
             });
         }

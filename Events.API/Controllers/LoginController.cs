@@ -56,7 +56,7 @@ namespace Events.API.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = userInfo.AccountRoles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
+            var claims = userInfo.Roles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
                                               .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
 
             var token = new JwtSecurityToken(
@@ -72,7 +72,7 @@ namespace Events.API.Controllers
 
         private async Task<Account> AuthenticateUser(AuthenticationModel login)
         {
-            Account account = await _context.Accounts.Include(d => d.AccountRoles)
+            Account account = await _context.Accounts.Include(d => d.Roles)
                                                      .ThenInclude(p => p.Role)
                                                      .FirstOrDefaultAsync(x => x.Email == login.Email);
             // check for valid authentication

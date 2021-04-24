@@ -48,7 +48,7 @@ namespace Events.API.Controllers
             _account.CreatedAt = DateTime.UtcNow;
             _account.ModifiedAt = DateTime.UtcNow;
             _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
-            _account.AccountRoles = new List<AccountRole>();
+            _account.Roles = new List<AccountRole>();
 
             foreach (var roleId in account.RolesId)
             {
@@ -58,7 +58,7 @@ namespace Events.API.Controllers
                     {
                         error = $"The role with id: {roleId} don't exists"
                     });
-                _account.AccountRoles.Add(new AccountRole
+                _account.Roles.Add(new AccountRole
                 {
                     Account = _account,
                     Role = role

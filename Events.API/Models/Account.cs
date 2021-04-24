@@ -23,7 +23,7 @@ namespace Events.API.Models {
         public string AvatarPath { get; set; }
 
         [Required]
-        public ICollection<AccountRole> AccountRoles { get; set; }
+        public ICollection<AccountRole> Roles { get; set; }
 
         [Required]
         public string Password { get; set; }
