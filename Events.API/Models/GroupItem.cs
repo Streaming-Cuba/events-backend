@@ -18,7 +18,7 @@ namespace Events.API.Models
 
         public uint Votes { get; set; }
 
-        public ICollection<Social> Socials { get; set; }
+        public ICollection<GroupItemSocialSocial> Socials { get; set; }
 
         public string Metadata { get; set; }
 
