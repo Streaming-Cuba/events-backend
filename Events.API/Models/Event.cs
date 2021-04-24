@@ -33,7 +33,7 @@ namespace Events.API.Models
 
         public NCategory Category { get; set; }
 
-        public ICollection<NTag> Tag { get; set; }
+        public ICollection<EventTag> EventTags { get; set; }
 
         public ICollection<Social> Socials { get; set; }
 
