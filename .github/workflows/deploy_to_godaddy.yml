@@ -15,12 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Send Telegram notification
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.PERSONAL_TELEGRAM_USER_ID }}
-          token: ${{ secrets.NOTIFICATIONS_TELEGRAM_BOT_TOKEN }}
-          args: The ${{ github.event_name }} event triggered the "Deploy to StreamingCuba VPS" workflow.
+#      - name: Send Telegram notification
+#       uses: appleboy/telegram-action@master
+#        with:
+#          to: ${{ secrets.PERSONAL_TELEGRAM_USER_ID }}
+#          token: ${{ secrets.NOTIFICATIONS_TELEGRAM_BOT_TOKEN }}
+#          args: The ${{ github.event_name }} event triggered the "Deploy to StreamingCuba VPS" workflow.
 
 
       - name: Post deploy SSH Remote Commands
