@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Events.API.Controllers
 {
+    [Route("/api/v1/account")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -31,7 +32,6 @@ namespace Events.API.Controllers
         }
 
         [HttpPost]
-        [Route("/api/v1/[controller]")]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> CreateAccount([FromBody] AccountCreateDTO account)
         {
@@ -72,7 +72,6 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        [Route("/api/v1/[controller]")]
         public async Task<ActionResult<AccountReadDTO>> GetAccountByEmail([FromQuery][Required] string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -84,8 +83,7 @@ namespace Events.API.Controllers
             return NotFound(email);
         }
 
-        [HttpGet]
-        [Route("/api/v1/[controller]/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<AccountReadDTO>> GetAccountById([FromRoute] int id)
         {
             var account = await _context.Accounts.FindAsync(id);
@@ -95,8 +93,7 @@ namespace Events.API.Controllers
         }
 
 
-        [Route("/api/v1/[controller]/role")]
-        [HttpPost]
+        [HttpPost("role")]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> CreateRole([FromBody] Role role)
         {
@@ -105,12 +102,10 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateRole), role);
         }
 
-        [HttpGet]
-        [Route("/api/v1/[controller]/role")]
+        [HttpGet("role")]
         public async Task<ActionResult<ICollection<Role>>> GetRoles() => await _context.Roles.ToArrayAsync();
 
-        [HttpGet]
-        [Route("/api/v1/[controller]/role/{id}")]
+        [HttpGet("role/{id}")]
         public async Task<ActionResult<Role>> GetRoleById([FromRoute] int id)
         {
             var role = await _context.Roles.FindAsync(id);

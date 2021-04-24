@@ -4,6 +4,7 @@ using Events.API.Data;
 using Events.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Events.API.DTO;
 
 namespace Events.API.Controllers
 {
@@ -38,9 +39,16 @@ namespace Events.API.Controllers
 
         #region Create models and push to database
         [HttpPost("social")]
-        public async Task<ActionResult<Event>> CreateSocial([FromBody] Social social)
+        public async Task<ActionResult<Event>> CreateSocial([FromBody] SocialCreateDTO social)
         {
-            await _context.Socials.AddAsync(social);
+            var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
+            if (type == null)
+                return BadRequest();
+
+            var _social = _mapper.Map<Social>(social);
+            _social.PlatformType = type;
+            
+            await _context.Socials.AddAsync(_social);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateSocial), social);
         }
