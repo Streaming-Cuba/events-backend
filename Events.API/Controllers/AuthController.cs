@@ -80,7 +80,7 @@ namespace Events.API.Controllers
             // check for valid authentication
             var passwordVerification = _passwordHasher
                 .VerifyHashedPassword(account.Email, account.Password, login.Password);
-            if (account == null || passwordVerification == PasswordVerificationResult.Success)
+            if (account == null || passwordVerification != PasswordVerificationResult.Success)
                 return null;
 
             return account;
