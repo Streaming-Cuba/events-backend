@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace Events.API.Controllers
 {
@@ -33,7 +34,7 @@ namespace Events.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] User login)
+        public async Task<IActionResult> Login([FromBody] AuthenticationModel login)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -55,10 +56,13 @@ namespace Events.API.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            var claims = userInfo.Roles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
+                                              .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
+
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Issuer"],
-                null,
+                claims,
                 expires: DateTime.Now.AddMinutes(120),
                 signingCredentials: credentials
             );
@@ -66,10 +70,11 @@ namespace Events.API.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private async Task<Account> AuthenticateUser(User login)
+        private async Task<Account> AuthenticateUser(AuthenticationModel login)
         {
-            Account account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email
-                                                                               == login.Email);
+            Account account = await _context.Accounts.Include(d => d.Roles)
+                                                     .ThenInclude(p => p.Role)
+                                                     .FirstOrDefaultAsync(x => x.Email == login.Email);
             // check for valid authentication
             if (account == null
                 || _passwordHasher.VerifyHashedPassword(account.Email,

@@ -22,6 +22,16 @@ namespace Events.API.Data
         public DbSet<Group> Groups { get; set; }
 
         public DbSet<GroupItem> GroupItems { get; set; }
+
+        public DbSet<GroupItemType> GroupItemTypes { get; set; }
+
+        public DbSet<EventTag> EventTags { get; set; }
+
+        public DbSet<EventSocial> EventSocials { get; set; }
+
+        public DbSet<GroupItemSocialSocial> GroupItemSocialSocials { get; set; }
+
+        public DbSet<GroupItemMetadata> GroupItemMetadatas { get; set; }
         
         public EventContext(DbContextOptions<EventContext> options) : base(options) { }
 

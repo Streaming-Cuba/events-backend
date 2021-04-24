@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Events.API.Models
 {
-    public class User
+    public class AuthenticationModel
     {
 
         [Required]

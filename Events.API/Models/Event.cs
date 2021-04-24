@@ -12,7 +12,7 @@ namespace Events.API.Models
         public int Id { get; set; }
 
         [Required]
-        public int Identifier { get; set; }
+        public string Identifier { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -33,9 +33,9 @@ namespace Events.API.Models
 
         public NCategory Category { get; set; }
 
-        public ICollection<NTag> Tag { get; set; }
+        public ICollection<EventTag> Tags { get; set; }
 
-        public ICollection<Social> Socials { get; set; }
+        public ICollection<EventSocial> Socials { get; set; }
 
         public string CoverPath { get; set; }
 

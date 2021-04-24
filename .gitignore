@@ -12,9 +12,6 @@ project.lock.json
 # VS Code
 .vscode
 
-# Migrations
-Migrations/
-
 # mstest test results
 TestResults
 

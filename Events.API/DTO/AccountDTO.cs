@@ -4,35 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Events.API.DTO
 {
-    public class PermissionCreateDTO
-    {
-        [Required]
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-    }
-
-    public class RoleCreateDTO
-    {
-        [Required]
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-
-        public ICollection<int> PermissionsId { get; set; }
-    }
-
-    public class RoleReadDTO
-    {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-
-        public ICollection<int> PermissionsId { get; set; }
-    }
-
     public class AccountCreateDTO
     {
         public string Name { get; set; }
@@ -45,7 +16,7 @@ namespace Events.API.DTO
         public string AvatarPath { get; set; }
 
         [Required]
-        public int RoleId { get; set; }
+        public ICollection<int> RolesId { get; set; }
 
         [Required]
         public string Password { get; set; }
@@ -61,7 +32,7 @@ namespace Events.API.DTO
 
         public string AvatarPath { get; set; }
 
-        public int RoleId { get; set; }
+        public ICollection<int> RolesId { get; set; }
         
         public DateTime CreatedAt { get; set; }
 

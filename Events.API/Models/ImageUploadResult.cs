@@ -9,6 +9,4 @@ namespace Events.API.Models
     {
         public string Url { get; set; }
     }
-
-
 }

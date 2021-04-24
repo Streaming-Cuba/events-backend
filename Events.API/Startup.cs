@@ -25,7 +25,10 @@ namespace Events.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
+            services.AddAuthentication(x => {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).
             AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -41,7 +44,8 @@ namespace Events.API
             });
 
             // DbContext's
-            services.AddDbContext<AccountContext>(opt => opt.UseSqlite("Data Source=/home/jorgeajimenezl/testing.db"));
+            services.AddDbContext<AccountContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("AccountsConnection")));
+            services.AddDbContext<EventContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("EventsConnection")));
             
             // Services
             services.AddSingleton<ICdnService, CloudinaryService>();
@@ -61,6 +65,8 @@ namespace Events.API
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
