@@ -12,7 +12,7 @@ namespace Events.API.Models
         public int Id { get; set; }
 
         [Required]
-        public int Identifier { get; set; }
+        public string Identifier { get; set; }
 
         [Required]
         public string Name { get; set; }

@@ -44,8 +44,8 @@ namespace Events.API
             });
 
             // DbContext's
-            services.AddDbContext<AccountContext>(opt => opt.UseSqlite(Configuration.GetConnectionString("AccountsConnection")));
-            services.AddDbContext<EventContext>(opt => opt.UseSqlite(Configuration.GetConnectionString("EventsConnection")));
+            services.AddDbContext<AccountContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("AccountsConnection")));
+            services.AddDbContext<EventContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("EventsConnection")));
             
             // Services
             services.AddSingleton<ICdnService, CloudinaryService>();
