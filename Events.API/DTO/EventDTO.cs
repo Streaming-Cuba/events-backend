@@ -1,0 +1,3 @@
+namespace Events.API.DTO {
+    
+}

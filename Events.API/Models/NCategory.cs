@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class NCategory
     {
         [Key]

@@ -58,7 +58,7 @@ namespace Events.API.Controllers
 
             var claims = userInfo.AccountRoles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
                                               .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
-            
+
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Issuer"],

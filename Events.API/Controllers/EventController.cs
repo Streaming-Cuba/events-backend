@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using AutoMapper;
 using Events.API.Data;
+using Events.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
@@ -14,6 +16,54 @@ namespace Events.API.Controllers
         {
             _context = context;
             _mapper = mapper;
-        }        
+        }
+
+        #region Create models and push to database
+        [HttpPost]
+        [Route("/api/v1/[controller]/social")]
+        public async Task<ActionResult<Event>> CreateSocial([FromBody] Social social)
+        {
+            await _context.Socials.AddAsync(social);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateSocial), social);
+        }
+
+        [HttpPost]
+        [Route("/api/v1/[controller]/socials")]
+        public async Task<ActionResult<SocialPlatformType>> CreateSocialPlatformType([FromBody] SocialPlatformType socialPlatformType)
+        {
+            await _context.SocialPlatformTypes.AddAsync(socialPlatformType);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateSocialPlatformType), socialPlatformType);
+        }
+
+        [HttpPost]
+        [Route("/api/v1/[controller]/category")]
+        public async Task<ActionResult<NCategory>> CreateCategory([FromBody] NCategory category)
+        {
+            await _context.Categories.AddAsync(category);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateSocial), category);
+        }
+
+        [HttpPost]
+        [Route("/api/v1/[controller]/interation")]
+        public async Task<ActionResult<Interation>> CreateInteration([FromBody] Interation interation)
+        {
+            await _context.Interations.AddAsync(interation);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateInteration), interation);
+        }
+
+        [HttpPost]
+        [Route("/api/v1/[controller]/eventstatus")]
+        public async Task<ActionResult<NEventStatus>> CreateEventStatus([FromBody] NEventStatus eventStatus)
+        {
+            await _context.EventStatuses.AddAsync(eventStatus);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateEventStatus), eventStatus);
+        }
+
+        #endregion
     }
 }
