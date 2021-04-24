@@ -54,7 +54,7 @@ namespace Events.API.Controllers
             {
                 var role = await _context.Roles.FindAsync(roleId);
                 if (role == null)
-                    return BadRequest(new
+                    return NotFound(new
                     {
                         error = $"The role with id: {roleId} don't exists"
                     });

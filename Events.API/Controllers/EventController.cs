@@ -5,6 +5,7 @@ using Events.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Events.API.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Controllers
 {
@@ -21,21 +22,19 @@ namespace Events.API.Controllers
             _mapper = mapper;
         }
 
+        #region Get models information
         [HttpGet]
-        public ActionResult<Event> ListEvents()
-        {
-            var events = _context.Events.ToList();
-            return Ok(events);
-        }
+        public async Task<ActionResult<Event>> ListEvents() => Ok(await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
-        public ActionResult<Event> EventByIdentifier(string identifier)
+        public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
         {
-            var item = _context.Events.SingleOrDefault(x => x.Identifier == identifier);
+            var item = await _context.Events.SingleOrDefaultAsync(x => x.Identifier == identifier);
             if (item == null)
                 return NotFound();
             return Ok(item);
         }
+        #endregion
 
         #region Create models and push to database
         [HttpPost("social")]
@@ -43,7 +42,7 @@ namespace Events.API.Controllers
         {
             var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
             if (type == null)
-                return BadRequest();
+                return NotFound();
 
             var _social = _mapper.Map<Social>(social);
             _social.PlatformType = type;
@@ -91,6 +90,29 @@ namespace Events.API.Controllers
             await _context.GroupItemTypes.AddAsync(groupItemType);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateGroupItemType), groupItemType);
+        }
+        #endregion
+
+        #region Modify models 
+        [HttpPatch]
+        [Route("/api/v1/[controller]/social/{id}")]
+        public async Task<ActionResult<Event>> ModifySocial([FromRoute]int id, [FromBody] SocialCreateDTO social)
+        {
+            var _social = await _context.Socials.FindAsync(id);
+            if (_social == null)
+                return NotFound(id);
+
+            if (social.PlatformTypeId.HasValue) {
+                var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
+                if (type == null)
+                    return BadRequest();
+                _social.PlatformType = type;
+            }
+
+            // hand make
+            _social = _mapper.Map<SocialCreateDTO, Social>(social, _social);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateSocial), _social);
         }
         #endregion
     }
