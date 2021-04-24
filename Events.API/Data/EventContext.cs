@@ -17,7 +17,7 @@ namespace Events.API.Data
 
         public DbSet<SocialPlatformType> SocialPlatformTypes { get; set; }
 
-        public DbSet<Interation> Interations { get; set; }
+        public DbSet<Interaction> Interactions { get; set; }
 
         public DbSet<Group> Groups { get; set; }
 

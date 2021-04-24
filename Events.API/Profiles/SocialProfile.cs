@@ -3,11 +3,14 @@ using Events.API.DTO;
 using Events.API.Models;
 
 namespace Events.API.Profiles {
-    public class SocialProfile : Profile 
+    public class EventProfile : Profile 
     {
-        public SocialProfile() 
+        public EventProfile() 
         {
             CreateMap<SocialCreateDTO, Social>();
+            CreateMap<GroupItemTypeCreateDTO, GroupItemType>();
+            CreateMap<NEventStatusCreateDTO, NEventStatus>();
+            CreateMap<InteractionCreateDTO, Interaction>();
         }
     }
 }

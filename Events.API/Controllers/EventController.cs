@@ -68,12 +68,12 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), category);
         }
 
-        [HttpPost("interation")]
-        public async Task<ActionResult<Interation>> CreateInteration([FromBody] Interation interation)
+        [HttpPost("interaction")]
+        public async Task<ActionResult<Interaction>> CreateInteraction([FromBody] Interaction interaction)
         {
-            await _context.Interations.AddAsync(interation);
+            await _context.Interactions.AddAsync(interaction);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateInteration), interation);
+            return CreatedAtAction(nameof(CreateInteraction), interaction);
         }
 
         [HttpPost("event-status")]
@@ -95,7 +95,8 @@ namespace Events.API.Controllers
 
         #region Modify models 
         [HttpPatch("social/{id}")]
-        public async Task<ActionResult<Event>> EditSocial([FromRoute]int id, [FromBody] SocialCreateDTO social)
+        public async Task<ActionResult> EditSocial([FromRoute] int id,
+                                                          [FromBody] SocialCreateDTO social)
         {
             var _social = await _context.Socials.FindAsync(id);
             if (_social == null)
@@ -108,24 +109,50 @@ namespace Events.API.Controllers
                 _social.PlatformType = type;
             }
 
-            // hand make
             _social = _mapper.Map<SocialCreateDTO, Social>(social, _social);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
         [HttpPatch("group/item-type/{id}")]
-        public async Task<ActionResult<GroupItemType>> EditGroupItemType([FromRoute]int id, [FromBody] GroupItemType groupItemType)
+        public async Task<ActionResult> EditGroupItemType([FromRoute] int id,
+                                                                         [FromBody] GroupItemTypeCreateDTO groupItemType)
         {
             var _groupItemType = await _context.GroupItemTypes.FindAsync(id);
             if (_groupItemType == null)
                 return NotFound(id);
 
-            // hand make
-            _groupItemType = _mapper.Map<GroupItemType, GroupItemType>(groupItemType, _groupItemType);
+            _groupItemType = _mapper.Map<GroupItemTypeCreateDTO, GroupItemType>(groupItemType, _groupItemType);
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpPatch("event-status/{id}")]
+        public async Task<ActionResult> EditEventStatus([FromRoute] int id,
+                                                        [FromBody] NEventStatusCreateDTO eventStatus)
+        {
+            var _eventStatus = await _context.EventStatuses.FindAsync(id);
+            if (_eventStatus == null)
+                return NotFound(id);
+
+            _eventStatus = _mapper.Map<NEventStatusCreateDTO, NEventStatus>(eventStatus, _eventStatus);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPatch("interaction/{id}")]
+        public async Task<ActionResult> EditInteraction([FromRoute] int id,
+                                                        [FromBody] InteractionCreateDTO interaction)
+        {
+            var _interaction = await _context.Interactions.FindAsync(id);
+            if (_interaction == null)
+                return NotFound(id);
+
+            _interaction = _mapper.Map<InteractionCreateDTO, Interaction>(interaction, _interaction);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
         #endregion
     }
 }

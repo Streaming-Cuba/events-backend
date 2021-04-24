@@ -9,4 +9,25 @@ namespace Events.API.DTO
         [Required]
         public string Url { get; set; }
     }
+
+    public class GroupItemTypeCreateDTO
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+    }
+
+    public class NEventStatusCreateDTO
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+    }
+
+    public class InteractionCreateDTO
+    {
+        public bool? Like { get; set; }
+        
+        public bool? Love { get; set; }
+    }
 }

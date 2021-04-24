@@ -41,7 +41,7 @@ namespace Events.API.Models
 
         public string ShortCoverPath { get; set; }
         
-        public ICollection<Interation> Interations { get; set; }
+        public ICollection<Interaction> Interactions { get; set; }
 
         public ICollection<Group> Groups { get; set; }
 
