@@ -82,7 +82,6 @@ namespace Events.API
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
-            app.UseHttpsRedirection();
             app.UseRouting();
             
             app.UseAuthentication();
