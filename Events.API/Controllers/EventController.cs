@@ -29,7 +29,15 @@ namespace Events.API.Controllers
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
         {
-            var item = await _context.Events.SingleOrDefaultAsync(x => x.Identifier == identifier);
+            var item = await _context.Events
+                    .Include(d => d.Groups)
+                    .ThenInclude(p => p.Items)
+                    .ThenInclude(p => p.Type)
+                    .Include(d => d.Groups)
+                    .ThenInclude(p => p.Items)
+                    .ThenInclude(p => p.Metadata)
+                    .SingleOrDefaultAsync(x => x.Identifier == identifier);
+
             if (item == null)
                 return NotFound();
             return Ok(item);
