@@ -8,9 +8,13 @@ namespace Events.API.Profiles {
         public EventProfile() 
         {
             CreateMap<SocialCreateDTO, Social>();
+            CreateMap<NTagCreateDTO, NTag>();
             CreateMap<GroupItemTypeCreateDTO, GroupItemType>();
             CreateMap<NEventStatusCreateDTO, NEventStatus>();
             CreateMap<InteractionCreateDTO, Interaction>();
+            CreateMap<NCategoryCreateDTO, NCategory>();
+            CreateMap<SocialPlatformTypeCreateDTO, SocialPlatformType>();
+            CreateMap<EventCreateDTO, Event>();
         }
     }
 }

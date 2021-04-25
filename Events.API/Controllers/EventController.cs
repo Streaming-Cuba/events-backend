@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Events.API.DTO;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Events.API.Controllers
 {
@@ -59,6 +60,47 @@ namespace Events.API.Controllers
         #endregion
 
         #region Create models and push to database
+        [HttpPost]
+        public async Task<ActionResult<Event>> CreateEvent([FromBody] EventCreateDTO @event)
+        {
+            // validate data
+            var _event = _mapper.Map<Event>(@event);
+
+            _event.Category = await _context.Categories.FindAsync(@event.CategoryId);
+            if (_event.Category == null)
+                return BadRequest(new
+                {
+                    error = $"The category with id: {@event.CategoryId} don't exists"
+                });
+            
+            _event.Status = await _context.EventStatuses.FindAsync(@event.StatusId);
+            if (_event.Status == null)
+                return BadRequest(new
+                {
+                    error = $"The status with id: {@event.StatusId} don't exists"
+                });
+
+            foreach (var tagId in @event.TagsId)
+            {
+                var tag = await _context.Tags.FindAsync(tagId);
+                if (tag == null)
+                    return BadRequest(new
+                    {
+                        error = $"The tag with id: {tagId} don't exists"
+                    });
+                _event.Tags.Add(new EventTag
+                {
+                    Tag = tag,
+                    Event = _event
+                });
+            }
+
+            _event.CreatedAt = DateTime.UtcNow;
+            _event.ModifiedAt = DateTime.UtcNow;
+
+            return CreatedAtAction(nameof(CreateEvent), _event);
+        }
+
         [HttpPost("tag")]
         public async Task<ActionResult<NTag>> CreateTag([FromBody] NTagCreateDTO tag)
         {
@@ -72,7 +114,10 @@ namespace Events.API.Controllers
         {
             var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
             if (type == null)
-                return NotFound();
+                return BadRequest(new
+                {
+                    error = $"The platform type with id: {social.PlatformTypeId} don't exists"
+                });
 
             var _social = _mapper.Map<Social>(social);
             _social.PlatformType = type;
@@ -126,7 +171,7 @@ namespace Events.API.Controllers
         #region Modify models 
         [HttpPut("social/{id}")]
         public async Task<ActionResult> EditSocial([FromRoute] int id,
-                                                          [FromBody] SocialCreateDTO social)
+                                                   [FromBody] SocialCreateDTO social)
         {
             var _social = await _context.Socials.FindAsync(id);
             if (_social == null)
@@ -136,7 +181,10 @@ namespace Events.API.Controllers
             {
                 var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
                 if (type == null)
-                    return BadRequest();
+                    return BadRequest(new
+                    {
+                        error = $"The platform type with id: {social.PlatformTypeId} don't exists"
+                    });
                 _social.PlatformType = type;
             }
 

@@ -27,10 +27,12 @@ namespace Events.API.Models
         [Required]
         public DateTime EndDate { get; set; }
 
+        [Required]
         public NEventStatus Status { get; set; }
 
         public string Organizer { get; set; }
 
+        [Required]
         public NCategory Category { get; set; }
 
         public ICollection<EventTag> Tags { get; set; }
@@ -44,6 +46,8 @@ namespace Events.API.Models
         public ICollection<Interaction> Interactions { get; set; }
 
         public ICollection<Group> Groups { get; set; }
+
+        public string Location { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

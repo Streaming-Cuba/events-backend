@@ -54,7 +54,7 @@ namespace Events.API.Controllers
             {
                 var role = await _context.Roles.FindAsync(roleId);
                 if (role == null)
-                    return NotFound(new
+                    return BadRequest(new
                     {
                         error = $"The role with id: {roleId} don't exists"
                     });
@@ -68,7 +68,7 @@ namespace Events.API.Controllers
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateAccount), _account.Id);
+            return CreatedAtAction(nameof(CreateAccount), _mapper.Map<AccountReadDTO>(_account));
         }
 
         [HttpGet]
