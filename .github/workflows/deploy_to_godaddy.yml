@@ -31,8 +31,8 @@ jobs:
       - name: Publish release
         run: dotnet publish -c Release
 
-      - name: ls
-        run: ls -a
+      # - name: ls
+      #   run: ls -a
 
       - name: Copying publish assets
         uses: garygrossgarten/github-action-scp@release
