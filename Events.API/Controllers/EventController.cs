@@ -59,6 +59,14 @@ namespace Events.API.Controllers
         #endregion
 
         #region Create models and push to database
+        [HttpPost("tag")]
+        public async Task<ActionResult<NTag>> CreateTag([FromBody] NTagCreateDTO tag)
+        {
+            await _context.Tags.AddAsync(_mapper.Map<NTag>(tag));
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateTag), tag);
+        }
+
         [HttpPost("social")]
         public async Task<ActionResult<Event>> CreateSocial([FromBody] SocialCreateDTO social)
         {
@@ -91,25 +99,25 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("interaction")]
-        public async Task<ActionResult<Interaction>> CreateInteraction([FromBody] Interaction interaction)
+        public async Task<ActionResult<Interaction>> CreateInteraction([FromBody] InteractionCreateDTO interaction)
         {
-            await _context.Interactions.AddAsync(interaction);
+            await _context.Interactions.AddAsync(_mapper.Map<Interaction>(interaction));
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateInteraction), interaction);
         }
 
         [HttpPost("event-status")]
-        public async Task<ActionResult<NEventStatus>> CreateEventStatus([FromBody] NEventStatus eventStatus)
+        public async Task<ActionResult<NEventStatus>> CreateEventStatus([FromBody] NEventStatusCreateDTO eventStatus)
         {
-            await _context.EventStatuses.AddAsync(eventStatus);
+            await _context.EventStatuses.AddAsync(_mapper.Map<NEventStatus>(eventStatus));
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateEventStatus), eventStatus);
         }
 
         [HttpPost("group/item-type")]
-        public async Task<ActionResult<GroupItemType>> CreateGroupItemType([FromBody] GroupItemType groupItemType)
+        public async Task<ActionResult<GroupItemType>> CreateGroupItemType([FromBody] GroupItemTypeCreateDTO groupItemType)
         {
-            await _context.GroupItemTypes.AddAsync(groupItemType);
+            await _context.GroupItemTypes.AddAsync(_mapper.Map<GroupItemType>(groupItemType));
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateGroupItemType), groupItemType);
         }
