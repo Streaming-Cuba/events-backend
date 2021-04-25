@@ -14,6 +14,8 @@ namespace Events.API.Models
 
         public string Description { get; set; }
 
+        public ICollection<Group> ChildGroups { get; set; }
+
         public ICollection<GroupItem> Items { get; set; }
     }
 }

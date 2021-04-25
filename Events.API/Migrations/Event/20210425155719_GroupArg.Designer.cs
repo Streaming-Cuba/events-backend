@@ -3,15 +3,17 @@ using System;
 using Events.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Events.API.Migrations.Event
 {
     [DbContext(typeof(EventContext))]
-    partial class EventContextModelSnapshot : ModelSnapshot
+    [Migration("20210425155719_GroupArg")]
+    partial class GroupArg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,8 +137,8 @@ namespace Events.API.Migrations.Event
                     b.Property<int?>("EventId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("integer");
+                    b.Property<string>("GroupArg")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -145,8 +147,6 @@ namespace Events.API.Migrations.Event
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
-
-                    b.HasIndex("GroupId");
 
                     b.ToTable("Groups");
                 });
@@ -455,10 +455,6 @@ namespace Events.API.Migrations.Event
                     b.HasOne("Events.API.Models.Event", null)
                         .WithMany("Groups")
                         .HasForeignKey("EventId");
-
-                    b.HasOne("Events.API.Models.Group", null)
-                        .WithMany("ChildGroups")
-                        .HasForeignKey("GroupId");
                 });
 
             modelBuilder.Entity("Events.API.Models.GroupItem", b =>
@@ -528,8 +524,6 @@ namespace Events.API.Migrations.Event
 
             modelBuilder.Entity("Events.API.Models.Group", b =>
                 {
-                    b.Navigation("ChildGroups");
-
                     b.Navigation("Items");
                 });
 

@@ -24,19 +24,25 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public async Task<ActionResult<Event>> ListEvents() => Ok(await _context.Events.ToListAsync());
+        public ActionResult<Event> ListEvents()
+        {
+            var list = _context.Events.ToList();
+            return Ok(list);
+        }
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
         {
             var item = await _context.Events
                     .Include(d => d.Groups)
+                    .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Type)
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
+
 
             if (item == null)
                 return NotFound();
@@ -54,7 +60,7 @@ namespace Events.API.Controllers
 
             var _social = _mapper.Map<Social>(social);
             _social.PlatformType = type;
-            
+
             await _context.Socials.AddAsync(_social);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateSocial), social);
@@ -110,7 +116,8 @@ namespace Events.API.Controllers
             if (_social == null)
                 return NotFound(id);
 
-            if (social.PlatformTypeId.HasValue) {
+            if (social.PlatformTypeId.HasValue)
+            {
                 var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
                 if (type == null)
                     return BadRequest();
