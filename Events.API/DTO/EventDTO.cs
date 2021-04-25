@@ -37,4 +37,18 @@ namespace Events.API.DTO
 
         public bool? Love { get; set; }
     }
+
+    public class NCategoryCreateDTO
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+    }
+
+    public class SocialPlatformTypeCreateDTO
+    {
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+    }
 }

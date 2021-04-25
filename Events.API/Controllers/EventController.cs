@@ -83,9 +83,9 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("social/platform-type")]
-        public async Task<ActionResult<SocialPlatformType>> CreateSocialPlatformType([FromBody] SocialPlatformType socialPlatformType)
+        public async Task<ActionResult<SocialPlatformType>> CreateSocialPlatformType([FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
         {
-            await _context.SocialPlatformTypes.AddAsync(socialPlatformType);
+            await _context.SocialPlatformTypes.AddAsync(_mapper.Map<SocialPlatformType>(socialPlatformType));
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateSocialPlatformType), socialPlatformType);
         }
@@ -124,7 +124,7 @@ namespace Events.API.Controllers
         #endregion
 
         #region Modify models 
-        [HttpPatch("social/{id}")]
+        [HttpPut("social/{id}")]
         public async Task<ActionResult> EditSocial([FromRoute] int id,
                                                           [FromBody] SocialCreateDTO social)
         {
@@ -145,7 +145,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [HttpPatch("group/item-type/{id}")]
+        [HttpPut("group/item-type/{id}")]
         public async Task<ActionResult> EditGroupItemType([FromRoute] int id,
                                                                          [FromBody] GroupItemTypeCreateDTO groupItemType)
         {
@@ -158,7 +158,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [HttpPatch("event-status/{id}")]
+        [HttpPut("event-status/{id}")]
         public async Task<ActionResult> EditEventStatus([FromRoute] int id,
                                                         [FromBody] NEventStatusCreateDTO eventStatus)
         {
@@ -171,7 +171,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [HttpPatch("interaction/{id}")]
+        [HttpPut("interaction/{id}")]
         public async Task<ActionResult> EditInteraction([FromRoute] int id,
                                                         [FromBody] InteractionCreateDTO interaction)
         {
@@ -180,6 +180,47 @@ namespace Events.API.Controllers
                 return NotFound(id);
 
             _interaction = _mapper.Map<InteractionCreateDTO, Interaction>(interaction, _interaction);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPut("tag/{id}")]
+        public async Task<ActionResult> EditTag([FromRoute] int id,
+                                                [FromBody] NTagCreateDTO tag)
+        {
+            var _tag = await _context.Tags.FindAsync(id);
+            if (_tag == null)
+                return NotFound(id);
+
+            _tag = _mapper.Map<NTagCreateDTO, NTag>(tag, _tag);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPut("category/{id}")]
+        public async Task<ActionResult> EditCategory([FromRoute] int id,
+                                                     [FromBody] NCategoryCreateDTO category)
+        {
+            var _category = await _context.Categories.FindAsync(id);
+            if (_category == null)
+                return NotFound(id);
+
+            _category = _mapper.Map<NCategoryCreateDTO, NCategory>(category, _category);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPut("social/platform-type/{id}")]
+        public async Task<ActionResult> EditSocialPlatformType([FromRoute] int id,
+                                                               [FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
+        {
+            var _socialPlatformType = await _context.SocialPlatformTypes.FindAsync(id);
+            if (_socialPlatformType == null)
+                return NotFound(id);
+
+            _socialPlatformType = _mapper.Map<SocialPlatformTypeCreateDTO, SocialPlatformType>(
+                socialPlatformType,
+                _socialPlatformType);
             await _context.SaveChangesAsync();
             return Ok();
         }
