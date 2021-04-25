@@ -36,13 +36,21 @@ namespace Events.API.Controllers
             var item = await _context.Events
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.ChildGroups)
+
+                    .Include(d => d.Groups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Type)
+
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
-                    .SingleOrDefaultAsync(x => x.Identifier == identifier);
 
+                    // second level
+                    .Include(d => d.Groups)
+                    .ThenInclude(p => p.ChildGroups)
+                    .ThenInclude(p => p.Items)
+                    .ThenInclude(p => p.Metadata)
+                    .SingleOrDefaultAsync(x => x.Identifier == identifier);
 
             if (item == null)
                 return NotFound();
