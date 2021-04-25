@@ -9,10 +9,7 @@ namespace Events.API.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        public string Name { get; set; }
-
-        public string Description { get; set; }
+        public string ProductorHome { get; set; }
 
         public string Interpreter { get; set; }
 
