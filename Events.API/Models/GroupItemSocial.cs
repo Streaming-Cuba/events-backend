@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Events.API.Models
 {
     [Index(nameof(ItemId), nameof(SocialId), IsUnique = true)]
-    public class GroupItemSocialSocial
+    public class GroupItemSocial
     {
         [Key]
         public int Id { get; set; }

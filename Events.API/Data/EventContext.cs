@@ -29,7 +29,7 @@ namespace Events.API.Data
 
         public DbSet<EventSocial> EventSocials { get; set; }
 
-        public DbSet<GroupItemSocialSocial> GroupItemSocialSocials { get; set; }
+        public DbSet<GroupItemSocial> GroupItemSocials { get; set; }
 
         public DbSet<GroupItemMetadata> GroupItemMetadatas { get; set; }
         

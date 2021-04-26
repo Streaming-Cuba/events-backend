@@ -10,7 +10,34 @@ namespace Events.API.DTO
         public string Name { get; set; }
 
         public string Description { get; set; }
+    }  
+
+    public class GroupItemCreateDTO
+    {
+        [Required]
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public string CoverPath { get; set; }
+
+        public uint Votes { get; set; }
+
+        public GroupItemMetadataCreateDTO Metadata { get; set; }
+
+        public int? TypeId { get; set; }
     }    
+
+    public class GroupItemMetadataCreateDTO
+    {
+        public string ProductorHome { get; set; }
+
+        public string Interpreter { get; set; }
+
+        public string Productor { get; set; }
+
+        public string Support { get; set; }
+    }
 
     public class SocialCreateDTO
     {

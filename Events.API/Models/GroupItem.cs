@@ -16,9 +16,9 @@ namespace Events.API.Models
 
         public string CoverPath { get; set; }
 
-        public uint Votes { get; set; }
+        public ICollection<GroupItemVote> Votes { get; set; }
 
-        public ICollection<GroupItemSocialSocial> Socials { get; set; }
+        public ICollection<GroupItemSocial> Socials { get; set; }
 
         public GroupItemMetadata Metadata { get; set; }
 

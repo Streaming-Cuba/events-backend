@@ -104,6 +104,38 @@ namespace Events.API.Controllers
 
         // }
 
+        [HttpPost("group/item/{groupId}")]
+        public async Task<ActionResult> CreateGroupItem([FromQuery] int groupId,
+                                                        [FromBody] GroupItemCreateDTO groupItem)
+        {
+            var _group = await _context.Groups.FindAsync(groupId);
+            if (_group == null)
+                return BadRequest(new
+                {
+                    error = $"The group with id: {groupId} don't exists"
+                });
+
+
+            var type = await _context.GroupItemTypes.FindAsync(groupItem.TypeId);
+            if (type == null)
+                return BadRequest(new
+                {
+                    error = $"The group item type with id: {groupItem.TypeId} don't exists"
+                });
+
+            var _groupItem = _mapper.Map<GroupItem>(groupItem);
+            _groupItem.Type = type;
+            _group.Items.Add(_groupItem);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("group/item/vote/{groupItemId}")]
+        public async Task<ActionResult> CreateVote()
+        {
+            return Ok();
+        }
+
         [HttpPost("group")]
         public async Task<ActionResult> CreateGroup([FromQuery] int? eventId,
                                                     [FromQuery] int? groupParentId,
