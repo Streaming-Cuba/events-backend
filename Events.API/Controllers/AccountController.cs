@@ -68,7 +68,7 @@ namespace Events.API.Controllers
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateAccount), _mapper.Map<AccountReadDTO>(_account));
+            return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
         }
 
         [HttpGet]
@@ -95,11 +95,12 @@ namespace Events.API.Controllers
 
         [HttpPost("role")]
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> CreateRole([FromBody] Role role)
+        public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
         {
-            var r = await _context.Roles.AddAsync(role);
+            var _role = _mapper.Map<Role>(role);
+            await _context.Roles.AddAsync(_role);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateRole), role);
+            return CreatedAtAction(nameof(CreateRole), new { id = _role.Id });
         }
 
         [HttpGet("role")]

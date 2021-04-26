@@ -9,6 +9,7 @@ namespace Events.API.Profiles {
         {
             CreateMap<AccountCreateDTO, Account>();
             CreateMap<Account, AccountReadDTO>();
+            CreateMap<RoleCreateDTO, Role>();
         }
     }
 }

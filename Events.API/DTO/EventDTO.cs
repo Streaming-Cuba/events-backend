@@ -4,6 +4,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Events.API.DTO
 {
+    public class GroupCreateDTO
+    {
+        [Required]
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+    }
+
     public class SocialCreateDTO
     {
         public int? PlatformTypeId { get; set; }

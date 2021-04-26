@@ -72,7 +72,7 @@ namespace Events.API.Controllers
                 {
                     error = $"The category with id: {@event.CategoryId} don't exists"
                 });
-            
+
             _event.Status = await _context.EventStatuses.FindAsync(@event.StatusId);
             if (_event.Status == null)
                 return BadRequest(new
@@ -99,6 +99,49 @@ namespace Events.API.Controllers
             _event.ModifiedAt = DateTime.UtcNow;
 
             return CreatedAtAction(nameof(CreateEvent), _event);
+        }
+
+        // [HttpPost("interaction/{eventId}")]
+        // public async Task<ActionResult> CreateInteraction([FromBody] InteractionCreateDTO interaction) 
+        // {
+
+        // }
+
+        [HttpPost("group")]
+        public async Task<ActionResult<NTag>> CreateGroup([FromQuery] int? eventId,
+                                                          [FromQuery] int? groupParentId,
+                                                          [FromBody] GroupCreateDTO group)
+        {
+            // WARNING: Must set almost one id
+            if (eventId == null && groupParentId == null)
+                return BadRequest(new
+                {
+                    error = "Must specify event id or a group parent id to make the connection"
+                });
+
+            Group _group = _mapper.Map<Group>(group);
+            if (eventId != null)
+            {
+                var _event = await _context.Events.FindAsync(eventId);
+                if (_event != null)
+                    return BadRequest(new
+                    {
+                        error = $"The event with id: {eventId} don't exists"
+                    });
+                _event.Groups.Add(_group);
+            }
+            if (groupParentId != null) {
+                var _groupParent = await _context.Groups.FindAsync(groupParentId);
+                if (_groupParent != null)
+                    return BadRequest(new
+                    {
+                        error = $"The group with id: {groupParentId} don't exists"
+                    });
+                _groupParent.ChildGroups.Add(_group);          
+            }
+
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(CreateGroup), new { id = _group.Id });
         }
 
         [HttpPost("tag")]
@@ -141,14 +184,6 @@ namespace Events.API.Controllers
             await _context.Categories.AddAsync(category);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateSocial), category);
-        }
-
-        [HttpPost("interaction")]
-        public async Task<ActionResult<Interaction>> CreateInteraction([FromBody] InteractionCreateDTO interaction)
-        {
-            await _context.Interactions.AddAsync(_mapper.Map<Interaction>(interaction));
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateInteraction), interaction);
         }
 
         [HttpPost("event-status")]
