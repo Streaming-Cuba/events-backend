@@ -28,7 +28,7 @@ namespace Events.API.Controllers
             var stream = photo.OpenReadStream();
             var result = _cdnservice.UploadPhoto(photo.FileName, stream);
 
-            return new OkObjectResult(new
+            return Ok(new
             {
                 Url = result.Url
             });

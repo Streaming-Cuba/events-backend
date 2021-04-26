@@ -26,11 +26,7 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public ActionResult<Event> ListEvents()
-        {
-            var list = _context.Events.ToList();
-            return Ok(list);
-        }
+        public async Task<ActionResult<Event>> ListEvents() => Ok(await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
@@ -131,14 +127,15 @@ namespace Events.API.Controllers
                     });
                 _event.Groups.Add(_group);
             }
-            if (groupParentId != null) {
+            if (groupParentId != null)
+            {
                 var _groupParent = await _context.Groups.FindAsync(groupParentId);
                 if (_groupParent != null)
                     return BadRequest(new
                     {
                         error = $"The group with id: {groupParentId} don't exists"
                     });
-                _groupParent.ChildGroups.Add(_group);          
+                _groupParent.ChildGroups.Add(_group);
             }
 
             await _context.SaveChangesAsync();
