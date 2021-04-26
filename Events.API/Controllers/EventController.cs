@@ -7,6 +7,7 @@ using System.Linq;
 using Events.API.DTO;
 using Microsoft.EntityFrameworkCore;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace Events.API.Controllers
 {
@@ -61,7 +62,7 @@ namespace Events.API.Controllers
 
         #region Create models and push to database
         [HttpPost]
-        public async Task<ActionResult<Event>> CreateEvent([FromBody] EventCreateDTO @event)
+        public async Task<ActionResult> CreateEvent([FromBody] EventCreateDTO @event)
         {
             // validate data
             var _event = _mapper.Map<Event>(@event);
@@ -98,7 +99,7 @@ namespace Events.API.Controllers
             _event.CreatedAt = DateTime.UtcNow;
             _event.ModifiedAt = DateTime.UtcNow;
 
-            return CreatedAtAction(nameof(CreateEvent), _event);
+            return CreatedAtAction(nameof(CreateEvent), new { id = _event.Id });
         }
 
         // [HttpPost("interaction/{eventId}")]
@@ -108,9 +109,9 @@ namespace Events.API.Controllers
         // }
 
         [HttpPost("group")]
-        public async Task<ActionResult<NTag>> CreateGroup([FromQuery] int? eventId,
-                                                          [FromQuery] int? groupParentId,
-                                                          [FromBody] GroupCreateDTO group)
+        public async Task<ActionResult> CreateGroup([FromQuery] int? eventId,
+                                                    [FromQuery] int? groupParentId,
+                                                    [FromBody] GroupCreateDTO group)
         {
             // WARNING: Must set almost one id
             if (eventId == null && groupParentId == null)
@@ -145,15 +146,16 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("tag")]
-        public async Task<ActionResult<NTag>> CreateTag([FromBody] NTagCreateDTO tag)
+        public async Task<ActionResult> CreateTag([FromBody] NTagCreateDTO tag)
         {
-            await _context.Tags.AddAsync(_mapper.Map<NTag>(tag));
+            var _tag = _mapper.Map<NTag>(tag);
+            await _context.Tags.AddAsync(_tag);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateTag), tag);
+            return CreatedAtAction(nameof(CreateTag), new { id = _tag.Id });
         }
 
         [HttpPost("social")]
-        public async Task<ActionResult<Event>> CreateSocial([FromBody] SocialCreateDTO social)
+        public async Task<ActionResult> CreateSocial([FromBody] SocialCreateDTO social)
         {
             var type = await _context.SocialPlatformTypes.FindAsync(social.PlatformTypeId);
             if (type == null)
@@ -167,39 +169,43 @@ namespace Events.API.Controllers
 
             await _context.Socials.AddAsync(_social);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateSocial), social);
+            return CreatedAtAction(nameof(CreateSocial), new { id = _social.Id });
         }
 
         [HttpPost("social/platform-type")]
-        public async Task<ActionResult<SocialPlatformType>> CreateSocialPlatformType([FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
+        public async Task<ActionResult> CreateSocialPlatformType([FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
         {
-            await _context.SocialPlatformTypes.AddAsync(_mapper.Map<SocialPlatformType>(socialPlatformType));
+            var _socialPlatformType = _mapper.Map<SocialPlatformType>(socialPlatformType);
+            await _context.SocialPlatformTypes.AddAsync(_socialPlatformType);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateSocialPlatformType), socialPlatformType);
+            return CreatedAtAction(nameof(CreateSocialPlatformType), new { id = _socialPlatformType.Id });
         }
 
         [HttpPost("category")]
-        public async Task<ActionResult<NCategory>> CreateCategory([FromBody] NCategory category)
+        public async Task<ActionResult> CreateCategory([FromBody] NCategoryCreateDTO category)
         {
-            await _context.Categories.AddAsync(category);
+            var _category = _mapper.Map<NCategory>(category);
+            await _context.Categories.AddAsync(_category);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateSocial), category);
+            return CreatedAtAction(nameof(CreateSocial), new { id = _category.Id });
         }
 
         [HttpPost("event-status")]
-        public async Task<ActionResult<NEventStatus>> CreateEventStatus([FromBody] NEventStatusCreateDTO eventStatus)
+        public async Task<ActionResult> CreateEventStatus([FromBody] NEventStatusCreateDTO eventStatus)
         {
-            await _context.EventStatuses.AddAsync(_mapper.Map<NEventStatus>(eventStatus));
+            var _eventStatus = _mapper.Map<NEventStatus>(eventStatus);
+            await _context.EventStatuses.AddAsync(_eventStatus);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateEventStatus), eventStatus);
+            return CreatedAtAction(nameof(CreateEventStatus), new { id = _eventStatus.Id });
         }
 
         [HttpPost("group/item-type")]
-        public async Task<ActionResult<GroupItemType>> CreateGroupItemType([FromBody] GroupItemTypeCreateDTO groupItemType)
+        public async Task<ActionResult> CreateGroupItemType([FromBody] GroupItemTypeCreateDTO groupItemType)
         {
-            await _context.GroupItemTypes.AddAsync(_mapper.Map<GroupItemType>(groupItemType));
+            var _groupItemType = _mapper.Map<GroupItemType>(groupItemType);
+            await _context.GroupItemTypes.AddAsync(_groupItemType);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateGroupItemType), groupItemType);
+            return CreatedAtAction(nameof(CreateGroupItemType), new { id = _groupItemType.Id });
         }
         #endregion
 
