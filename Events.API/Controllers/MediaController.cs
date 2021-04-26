@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers
 {
-    [Route("/api/v1/[controller]")]
+    [Route("/api/v1/media")]
     [ApiController]
     public class MediaController : ControllerBase
     {
