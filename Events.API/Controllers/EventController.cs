@@ -125,8 +125,12 @@ namespace Events.API.Controllers
                 });
 
             var _groupItem = _mapper.Map<GroupItem>(groupItem);
+
             _groupItem.Type = type;
             _group.Items.Add(_groupItem);
+            _groupItem.Group = _group;
+            _groupItem.GroupId = _group.Id; // drop
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -139,13 +143,16 @@ namespace Events.API.Controllers
 
             if (vote == null)
             {
-                vote = new GroupItemVote {
+                vote = new GroupItemVote
+                {
                     Count = 1,
                     Type = typeName
                 };
 
                 // await _context.GroupItemVotes.AddAsync(vote);                
-            } else {
+            }
+            else
+            {
                 vote.Count++;
             }
 
@@ -158,7 +165,11 @@ namespace Events.API.Controllers
 
             groupItem.Votes.Add(vote);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(new
+            {
+                groupItemId = groupItemId,
+                groupId = groupItem.GroupId,
+            });
         }
 
         [HttpPost("group")]
