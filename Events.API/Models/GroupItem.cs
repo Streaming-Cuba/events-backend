@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
@@ -28,9 +29,11 @@ namespace Events.API.Models
         public int? Number { get; set; }
 
         [Required]
+        [JsonIgnore]
         public int GroupId { get; set; }
 
         [Required]
+        [JsonIgnore]
         public Group Group { get; set; }
     }
 }
