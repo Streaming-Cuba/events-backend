@@ -135,7 +135,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [HttpPost("group/item/vote")]
+        [HttpPost("vote")]
         public async Task<ActionResult> CreateVote([FromQuery][Required] int groupItemId,
                                                    [FromQuery][Required] string typeName)
         {
