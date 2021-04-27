@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
@@ -25,5 +26,11 @@ namespace Events.API.Models
         public GroupItemType Type { get; set; }
 
         public int? Number { get; set; }
+
+        [Required]
+        public int GroupId { get; set; }
+
+        [Required]
+        public Group Group { get; set; }
     }
 }

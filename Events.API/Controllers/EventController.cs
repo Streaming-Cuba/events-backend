@@ -125,13 +125,17 @@ namespace Events.API.Controllers
                 });
 
             var _groupItem = _mapper.Map<GroupItem>(groupItem);
+
             _groupItem.Type = type;
             _group.Items.Add(_groupItem);
+            _groupItem.Group = _group;
+            _groupItem.GroupId = _group.Id; // drop
+
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-        [HttpPost("group/item/vote")]
+        [HttpPost("vote")]
         public async Task<ActionResult> CreateVote([FromQuery][Required] int groupItemId,
                                                    [FromQuery][Required] string typeName)
         {
@@ -139,18 +143,33 @@ namespace Events.API.Controllers
 
             if (vote == null)
             {
-                vote = new GroupItemVote {
+                vote = new GroupItemVote
+                {
                     Count = 1,
                     Type = typeName
                 };
 
-                await _context.GroupItemVotes.AddAsync(vote);                
-            } else {
+                // await _context.GroupItemVotes.AddAsync(vote);                
+            }
+            else
+            {
                 vote.Count++;
             }
 
+            var groupItem = await _context.GroupItems.FindAsync(groupItemId);
+            if (groupItem == null)
+                return BadRequest(new
+                {
+                    error = $"The group item with id: {groupItemId} don't exists"
+                });
+
+            groupItem.Votes.Add(vote);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(new
+            {
+                groupItemId = groupItemId,
+                groupId = groupItem.GroupId,
+            });
         }
 
         [HttpPost("group")]
