@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
 {
+    [Index(nameof(Type), IsUnique = true)]
     public class GroupItemVote
     {
         [Key]
@@ -9,6 +11,6 @@ namespace Events.API.Models
 
         public int Count { get; set; }
 
-        public GroupItemVoteType Type { get; set; }
+        public string Type { get; set; }
     }
 }

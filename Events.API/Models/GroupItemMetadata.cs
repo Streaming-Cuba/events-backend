@@ -16,5 +16,7 @@ namespace Events.API.Models
         public string Productor { get; set; }
 
         public string Support { get; set; }
+
+        public string Url { get; set; }
     }
 }

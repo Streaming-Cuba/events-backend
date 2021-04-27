@@ -8,6 +8,7 @@ using Events.API.DTO;
 using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Events.API.Controllers
 {
@@ -105,7 +106,7 @@ namespace Events.API.Controllers
         // }
 
         [HttpPost("group/item/{groupId}")]
-        public async Task<ActionResult> CreateGroupItem([FromQuery] int groupId,
+        public async Task<ActionResult> CreateGroupItem([FromRoute] int groupId,
                                                         [FromBody] GroupItemCreateDTO groupItem)
         {
             var _group = await _context.Groups.FindAsync(groupId);
@@ -130,9 +131,25 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [HttpPost("group/item/vote/{groupItemId}")]
-        public async Task<ActionResult> CreateVote()
+        [HttpPost("group/item/vote")]
+        public async Task<ActionResult> CreateVote([FromQuery][Required] int groupItemId,
+                                                   [FromQuery][Required] string typeName)
         {
+            var vote = await _context.GroupItemVotes.FirstOrDefaultAsync(x => x.Type == typeName);
+
+            if (vote == null)
+            {
+                vote = new GroupItemVote {
+                    Count = 1,
+                    Type = typeName
+                };
+
+                await _context.GroupItemVotes.AddAsync(vote);                
+            } else {
+                vote.Count++;
+            }
+
+            await _context.SaveChangesAsync();
             return Ok();
         }
 

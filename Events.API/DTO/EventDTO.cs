@@ -37,6 +37,8 @@ namespace Events.API.DTO
         public string Productor { get; set; }
 
         public string Support { get; set; }
+
+        public string Url { get; set; }
     }
 
     public class SocialCreateDTO
