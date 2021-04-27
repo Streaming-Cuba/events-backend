@@ -144,11 +144,19 @@ namespace Events.API.Controllers
                     Type = typeName
                 };
 
-                await _context.GroupItemVotes.AddAsync(vote);                
+                // await _context.GroupItemVotes.AddAsync(vote);                
             } else {
                 vote.Count++;
             }
 
+            var groupItem = await _context.GroupItems.FindAsync(groupItemId);
+            if (groupItem == null)
+                return BadRequest(new
+                {
+                    error = $"The group item with id: {groupItemId} don't exists"
+                });
+
+            groupItem.Votes.Add(vote);
             await _context.SaveChangesAsync();
             return Ok();
         }
