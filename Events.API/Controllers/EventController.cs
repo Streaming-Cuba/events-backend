@@ -137,37 +137,36 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("vote")]
-        public async Task<ActionResult> CreateVote([FromQuery][Required] int groupItemId,
-                                                   [FromQuery][Required] string typeName)
+        public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
         {
-            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == groupItemId);
+            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);
             if (groupItem == null)
                 return BadRequest(new
                 {
-                    error = $"The group item with id: {groupItemId} don't exists"
+                    error = $"The group item with id: {vote.GroupItemId} don't exists"
                 });
             
-            var vote = groupItem.Votes.FirstOrDefault(x => x.Type == typeName);
+            var _vote = groupItem.Votes.FirstOrDefault(x => x.Type == vote.Type);
 
-            if (vote == null)
+            if (_vote == null)
             {
-                vote = new GroupItemVote
+                _vote = new GroupItemVote
                 {
                     Count = 1,
-                    Type = typeName
+                    Type = vote.Type
                 };
 
-                groupItem.Votes.Add(vote);
+                groupItem.Votes.Add(_vote);
             }
             else
             {
-                vote.Count++;
+                _vote.Count++;
             }
 
             await _context.SaveChangesAsync();
             return Ok(new
             {
-                groupItemId = groupItemId,
+                groupItemId = vote.GroupItemId,
                 groupId = groupItem.GroupId,
             });
         }
