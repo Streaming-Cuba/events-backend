@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Events.API.Controllers
 {
@@ -139,7 +140,14 @@ namespace Events.API.Controllers
         public async Task<ActionResult> CreateVote([FromQuery][Required] int groupItemId,
                                                    [FromQuery][Required] string typeName)
         {
-            var vote = await _context.GroupItemVotes.FirstOrDefaultAsync(x => x.Type == typeName);
+            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == groupItemId);
+            if (groupItem == null)
+                return BadRequest(new
+                {
+                    error = $"The group item with id: {groupItemId} don't exists"
+                });
+            
+            var vote = groupItem.Votes.FirstOrDefault(x => x.Type == typeName);
 
             if (vote == null)
             {
@@ -149,21 +157,13 @@ namespace Events.API.Controllers
                     Type = typeName
                 };
 
-                // await _context.GroupItemVotes.AddAsync(vote);                
+                groupItem.Votes.Add(vote);
             }
             else
             {
                 vote.Count++;
             }
 
-            var groupItem = await _context.GroupItems.FindAsync(groupItemId);
-            if (groupItem == null)
-                return BadRequest(new
-                {
-                    error = $"The group item with id: {groupItemId} don't exists"
-                });
-
-            groupItem.Votes.Add(vote);
             await _context.SaveChangesAsync();
             return Ok(new
             {

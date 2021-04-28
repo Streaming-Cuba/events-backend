@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
 {
-    [Index(nameof(Type), IsUnique = true)]
     public class GroupItemVote
     {
         [Key]
