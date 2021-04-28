@@ -20,18 +20,15 @@ jobs:
 #          args: The ${{ github.event_name }} event triggered the "Deploy to StreamingCuba VPS" workflow.
 
       - name: Replace secrets
-        uses: microsoft/variable-substitution@v1 
-        with:
-          files: Events.API/appsettings.json
-        env:
-          "[DATABASE_EVENTS_NAME]": ${{ secrets.DATABASE_EVENTS_NAME }}
-          "[DATABASE_ACCOUNTS_NAME]": ${{ secrets.DATABASE_ACCOUNTS_NAME }}
-          "[DATABASE_SUBSCRIBERS_NAME]": ${{ secrets.DATABASE_SUBSCRIBERS_NAME }}
-          "[DATABASE_USER]": ${{ secrets.DATABASE_USER }}
-          "[DATABASE_PASSWORD]": ${{ secrets.DATABASE_PASSWORD }}
-          "[DATABASE_HOST]": ${{ secrets.DATABASE_HOST }}
-          "[DATABASE_PORT]": ${{ secrets.DATABASE_PORT }}
-          "[JWT_KEY]": ${{ secrets.JWT_KEY }}
+        run: |
+         sed -i s/DATABASE_EVENTS_NAME/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_USER/${{ secrets.DATABASE_USER }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_PASSWORD/${{ secrets.DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_HOST/${{ secrets.DATABASE_HOST }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
+         sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
         
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
