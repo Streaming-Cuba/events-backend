@@ -1,1 +1,1 @@
-# events-backend
+# Events Backend API
