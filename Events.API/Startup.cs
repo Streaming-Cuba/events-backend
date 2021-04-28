@@ -55,10 +55,10 @@ namespace Events.API
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             
             
-            services.AddCors(options =>
+            /*services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy => policy.AllowAnyOrigin());
-            });
+            });*/
             
             services.AddSwaggerGen();
 
