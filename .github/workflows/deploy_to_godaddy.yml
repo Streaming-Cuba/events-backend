@@ -2,12 +2,9 @@ name: Deploy to StreamingCuba VPS
  
 on:
   push:
-    # tags:
-    #   - 'v*'
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
+    branches:
+      - 'master'
+      
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,6 +19,19 @@ jobs:
 #          token: ${{ secrets.NOTIFICATIONS_TELEGRAM_BOT_TOKEN }}
 #          args: The ${{ github.event_name }} event triggered the "Deploy to StreamingCuba VPS" workflow.
 
+      - name: Replace secrets
+        run: sed 's/[DATABASE_EVENTS_NAME]/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+        run: sed 's/[DATABASE_ACCOUNTS_NAME]/${{ secrets.DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+        run: sed 's/[DATABASE_SUBSCRIBERS_NAME]/${{ secrets.DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+
+        run: sed 's/[DATABASE_USER]/${{ secrets.DATABASE_USER }}/g' Events.API/appsettings.json
+        run: sed 's/[DATABASE_PASSWORD]/${{ secrets.DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+
+        run: sed 's/[DATABASE_HOST]/${{ secrets.DATABASE_HOST }}/g' Events.API/appsettings.json
+        run: sed 's/[DATABASE_PORT]/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
+        
+        run: sed 's/[JWT_KEY]/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
+        
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
@@ -29,7 +39,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Publish release
-        run: dotnet publish -c Release
+        run: dotnet publish -c Release      
 
       # - name: ls
       #   run: ls -a
