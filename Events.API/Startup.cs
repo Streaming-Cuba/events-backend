@@ -56,12 +56,17 @@ namespace Events.API
 
             services.AddCors(options =>
             {
-                options.AddDefaultPolicy(policy => policy.AllowAnyOrigin());
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyHeader();
+                    policy.AllowAnyMethod();
+                    policy.AllowAnyOrigin();
+                });
             });
 
             services.AddControllers();
 
-            services.AddSwaggerGen();            
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
