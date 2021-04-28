@@ -10,6 +10,7 @@ namespace Events.API.Models
 
         public int Count { get; set; }
 
+        [Required]
         public string Type { get; set; }
     }
 }

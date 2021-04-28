@@ -10,6 +10,7 @@ using System;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Events.API.Controllers
 {
@@ -59,6 +60,7 @@ namespace Events.API.Controllers
         #endregion
 
         #region Create models and push to database
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         public async Task<ActionResult> CreateEvent([FromBody] EventCreateDTO @event)
         {
@@ -106,6 +108,7 @@ namespace Events.API.Controllers
 
         // }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("group/item/{groupId}")]
         public async Task<ActionResult> CreateGroupItem([FromRoute] int groupId,
                                                         [FromBody] GroupItemCreateDTO groupItem)
@@ -136,42 +139,43 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("vote")]
-        public async Task<ActionResult> CreateVote([FromQuery][Required] int groupItemId,
-                                                   [FromQuery][Required] string typeName)
+        public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
         {
-            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == groupItemId);
+            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);
             if (groupItem == null)
                 return BadRequest(new
                 {
-                    error = $"The group item with id: {groupItemId} don't exists"
+                    error = $"The group item with id: {vote.GroupItemId} don't exists"
                 });
             
-            var vote = groupItem.Votes.FirstOrDefault(x => x.Type == typeName);
+            var _vote = groupItem.Votes.FirstOrDefault(x => x.Type == vote.Type);
 
-            if (vote == null)
+            if (_vote == null)
             {
-                vote = new GroupItemVote
+                _vote = new GroupItemVote
                 {
                     Count = 1,
-                    Type = typeName
+                    Type = vote.Type
                 };
 
-                groupItem.Votes.Add(vote);
+                groupItem.Votes.Add(_vote);
             }
             else
             {
-                vote.Count++;
+                _vote.Count++;
             }
 
             await _context.SaveChangesAsync();
             return Ok(new
             {
-                groupItemId = groupItemId,
+                groupItemId = vote.GroupItemId,
                 groupId = groupItem.GroupId,
             });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("group")]
         public async Task<ActionResult> CreateGroup([FromQuery] int? eventId,
                                                     [FromQuery] int? groupParentId,
@@ -210,6 +214,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateGroup), new { id = _group.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("tag")]
         public async Task<ActionResult> CreateTag([FromBody] NTagCreateDTO tag)
         {
@@ -219,6 +224,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateTag), new { id = _tag.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("social")]
         public async Task<ActionResult> CreateSocial([FromBody] SocialCreateDTO social)
         {
@@ -237,6 +243,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), new { id = _social.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("social/platform-type")]
         public async Task<ActionResult> CreateSocialPlatformType([FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
         {
@@ -246,6 +253,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocialPlatformType), new { id = _socialPlatformType.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("category")]
         public async Task<ActionResult> CreateCategory([FromBody] NCategoryCreateDTO category)
         {
@@ -255,6 +263,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), new { id = _category.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("event-status")]
         public async Task<ActionResult> CreateEventStatus([FromBody] NEventStatusCreateDTO eventStatus)
         {
@@ -264,6 +273,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateEventStatus), new { id = _eventStatus.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("group/item-type")]
         public async Task<ActionResult> CreateGroupItemType([FromBody] GroupItemTypeCreateDTO groupItemType)
         {
@@ -275,6 +285,7 @@ namespace Events.API.Controllers
         #endregion
 
         #region Modify models 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("social/{id}")]
         public async Task<ActionResult> EditSocial([FromRoute] int id,
                                                    [FromBody] SocialCreateDTO social)
@@ -299,6 +310,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("group/item-type/{id}")]
         public async Task<ActionResult> EditGroupItemType([FromRoute] int id,
                                                                          [FromBody] GroupItemTypeCreateDTO groupItemType)
@@ -312,6 +324,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("event-status/{id}")]
         public async Task<ActionResult> EditEventStatus([FromRoute] int id,
                                                         [FromBody] NEventStatusCreateDTO eventStatus)
@@ -325,6 +338,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("interaction/{id}")]
         public async Task<ActionResult> EditInteraction([FromRoute] int id,
                                                         [FromBody] InteractionCreateDTO interaction)
@@ -338,6 +352,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("tag/{id}")]
         public async Task<ActionResult> EditTag([FromRoute] int id,
                                                 [FromBody] NTagCreateDTO tag)
@@ -351,6 +366,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("category/{id}")]
         public async Task<ActionResult> EditCategory([FromRoute] int id,
                                                      [FromBody] NCategoryCreateDTO category)
@@ -364,6 +380,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPut("social/platform-type/{id}")]
         public async Task<ActionResult> EditSocialPlatformType([FromRoute] int id,
                                                                [FromBody] SocialPlatformTypeCreateDTO socialPlatformType)

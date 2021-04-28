@@ -4,13 +4,22 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Events.API.DTO
 {
+    public class GroupItemVoteCreateDTO
+    {
+        [Required]
+        public int GroupItemId { get; set; }
+
+        [Required]
+        public string Type { get; set; }
+    }
+
     public class GroupCreateDTO
     {
         [Required]
         public string Name { get; set; }
 
         public string Description { get; set; }
-    }  
+    }
 
     public class GroupItemCreateDTO
     {
@@ -26,7 +35,7 @@ namespace Events.API.DTO
         public GroupItemMetadataCreateDTO Metadata { get; set; }
 
         public int? TypeId { get; set; }
-    }    
+    }
 
     public class GroupItemMetadataCreateDTO
     {
