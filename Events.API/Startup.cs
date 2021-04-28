@@ -26,7 +26,8 @@ namespace Events.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(x => {
+            services.AddAuthentication(x =>
+            {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).
@@ -47,7 +48,7 @@ namespace Events.API
             // DbContext's
             services.AddDbContext<AccountContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("AccountsConnection")));
             services.AddDbContext<EventContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("EventsConnection")));
-            
+
             // Services
             services.AddSingleton<ICdnService, CloudinaryService>();
 
@@ -57,14 +58,17 @@ namespace Events.API
 
             services.AddSwaggerGen();
 
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy => policy.AllowAnyOrigin());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-                        app.UseCors();
-            
+            app.UseCors();
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
@@ -89,7 +93,7 @@ namespace Events.API
             app.UseRouting();
 
 
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
 
