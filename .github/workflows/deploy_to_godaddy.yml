@@ -1,4 +1,4 @@
-name: Deploy to StreamingCuba VPS
+name: Deploy to Production
  
 on:
   push:
