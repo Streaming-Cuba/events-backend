@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi.Models;
 
 namespace Events.API
 {
@@ -69,7 +70,27 @@ namespace Events.API
 
             services.AddControllers();
 
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Streaming Cuba Events API",
+                    Description = "API for access to events platform from Streaming Cuba services",
+                    TermsOfService = new Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Streaming Cuba",
+                        Email = "api@streamingcuba.com",
+                        Url = new Uri("https://streamingcubaplus.com"),
+                    },
+                    // License = new OpenApiLicense
+                    // {
+                    //     Name = "Use under LICX",
+                    //     Url = new Uri("https://example.com/license"),
+                    // }
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
