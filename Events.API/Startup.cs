@@ -48,12 +48,15 @@ namespace Events.API
             // DbContext's
             services.AddDbContext<AccountContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("AccountsConnection")));
             services.AddDbContext<EventContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("EventsConnection")));
+            services.AddDbContext<SubscriberContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("SubscribersConnection")));
 
             // Services
             services.AddSingleton<ICdnService, CloudinaryService>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            // Verify
+            // UNSAFE
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy =>
