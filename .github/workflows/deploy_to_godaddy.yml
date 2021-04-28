@@ -21,7 +21,7 @@ jobs:
 
       - name: Replace secrets
         run: |
-         sed -i s/DATABASE_EVENTS_NAME/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
          sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
          sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
          sed -i 's/DATABASE_USER/${{ secrets.DATABASE_USER }}/g' Events.API/appsettings.json
