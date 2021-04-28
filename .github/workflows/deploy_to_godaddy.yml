@@ -1,9 +1,8 @@
 name: Deploy to StreamingCuba VPS
  
 on:
-  push:
-    branches:
-      - 'master'
+  release:
+    types: [published]
       
 jobs:
   build:
