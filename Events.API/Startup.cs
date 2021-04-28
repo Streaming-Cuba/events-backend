@@ -53,15 +53,16 @@ namespace Events.API
             services.AddSingleton<ICdnService, CloudinaryService>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            services.AddControllers();
-
-            services.AddSwaggerGen();
-
+            
+            
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy => policy.AllowAnyOrigin());
             });
+            
+            services.AddSwaggerGen();
+
+            services.AddControllers(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
