@@ -139,7 +139,6 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
         [HttpPost("vote")]
         public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
         {
