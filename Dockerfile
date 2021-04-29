@@ -9,7 +9,7 @@ RUN dotnet restore
 
 # copy everything else and build
 COPY ./Events.API/ ./
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Development -o out
 
 # build runtime image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
