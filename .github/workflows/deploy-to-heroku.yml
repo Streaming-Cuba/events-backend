@@ -23,6 +23,26 @@ jobs:
          sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
          sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.113     
+
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+        
+      - name: Installing Entity Framework Tools
+        run: dotnet tool install --global dotnet-ef
+        
+      - name: Updating Databases
+        run: |
+          dotnet ef database update --context EventContext --project ./Events.API   
+          dotnet ef database update --context AccountContext --project ./Events.API  
+          dotnet ef database update --context SubscriberContext --project ./Events.API 
+
+      - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}

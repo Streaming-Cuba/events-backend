@@ -59,13 +59,13 @@ namespace Events.API.Controllers
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
 
-                    .SingleOrDefaultAsync(x => x.Identifier == identifier);
-
-            // bad performance
-            item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
+                    .SingleOrDefaultAsync(x => x.Identifier == identifier);            
 
             if (item == null)
                 return NotFound();
+
+            // bad performance
+            item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
             return Ok(item);
         }
         #endregion

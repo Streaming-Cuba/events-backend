@@ -12,13 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Send Telegram notification
-#       uses: appleboy/telegram-action@master
-#        with:
-#          to: ${{ secrets.PERSONAL_TELEGRAM_USER_ID }}
-#          token: ${{ secrets.NOTIFICATIONS_TELEGRAM_BOT_TOKEN }}
-#          args: The ${{ github.event_name }} event triggered the "Deploy to StreamingCuba VPS" workflow.
-
       - name: Replace secrets
         run: |
          sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
@@ -39,9 +32,6 @@ jobs:
       - name: Publish release
         run: dotnet publish -c Release      
 
-      # - name: ls
-      #   run: ls -a
-
       - name: Copying publish assets
         uses: garygrossgarten/github-action-scp@release
         with:
@@ -56,7 +46,6 @@ jobs:
           dotfiles: true
           verbose: true
 
-
       - name: Post deploy SSH Remote Commands
         uses: appleboy/ssh-action@v0.1.4
         with:        
@@ -67,5 +56,3 @@ jobs:
           timeout: 60s
           debug: true
           script: sudo sh /home/streaming/apps/events-backend/deploy.sh
-
-
