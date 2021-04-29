@@ -12,16 +12,40 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Replace secrets
-        run: |
-         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.QA_DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.QA_DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_USER/${{ secrets.QA_DATABASE_USER }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_PASSWORD/${{ secrets.QA_DATABASE_PASSWORD }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
-         sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
+      # - name: Replace secrets
+      #   run: |
+      #    sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+      #    sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.QA_DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+      #    sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.QA_DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+      #    sed -i 's/DATABASE_USER/${{ secrets.QA_DATABASE_USER }}/g' Events.API/appsettings.json
+      #    sed -i 's/DATABASE_PASSWORD/${{ secrets.QA_DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+      #    sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
+      #    sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
+      #    sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_EVENTS_NAME secret
+        run: sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_ACCOUNTS_NAME secret
+        run: sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.QA_DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_SUBSCRIBERS_NAME secret
+        run: sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.QA_DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_USER secret
+        run: sed -i 's/DATABASE_USER/${{ secrets.QA_DATABASE_USER }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_PASSWORD secret
+        run: sed -i 's/DATABASE_PASSWORD/${{ secrets.QA_DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_HOST secret
+        run: sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
+
+      - name: Replace DATABASE_PORT secret
+        run: sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
+
+      - name: Replace JWT_KEY secret
+        run: sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
 
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
