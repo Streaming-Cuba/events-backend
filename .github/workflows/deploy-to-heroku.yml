@@ -36,12 +36,13 @@ jobs:
       - name: Installing Entity Framework Tools
         run: dotnet tool install --global dotnet-ef
         
-      - name: Updating Events Database
+      - name: Updating Databases
         run: |
           dotnet ef database update --context EventContext --project ./Events.API   
           dotnet ef database update --context AccountContext --project ./Events.API  
           dotnet ef database update --context SubscriberContext --project ./Events.API 
 
+      - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
