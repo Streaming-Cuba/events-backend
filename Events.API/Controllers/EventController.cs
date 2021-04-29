@@ -29,14 +29,7 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> ListEvents() 
-        {
-            var events = await _context.Events.ToListAsync();
-            events.ForEach(x => {
-                x.Groups = x.Groups.OrderBy(x => x.Order).ToList();
-            });
-            return events;
-        }
+        public async Task<ActionResult<IEnumerable<Event>>> ListEvents() => Ok(await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
