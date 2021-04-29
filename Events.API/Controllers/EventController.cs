@@ -29,7 +29,14 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public async Task<ActionResult<Event>> ListEvents() => Ok(await _context.Events.ToListAsync());
+        public async Task<ActionResult<IEnumerable<Event>>> ListEvents() 
+        {
+            var events = await _context.Events.ToListAsync();
+            events.ForEach(x => {
+                x.Groups = x.Groups.OrderBy(x => x.Order).ToList();
+            });
+            return events;
+        }
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
@@ -51,7 +58,11 @@ namespace Events.API.Controllers
                     .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
+
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
+
+            // bad performance
+            item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
 
             if (item == null)
                 return NotFound();
@@ -148,7 +159,7 @@ namespace Events.API.Controllers
                 {
                     error = $"The group item with id: {vote.GroupItemId} don't exists"
                 });
-            
+
             var _vote = groupItem.Votes.FirstOrDefault(x => x.Type == vote.Type);
 
             if (_vote == null)
