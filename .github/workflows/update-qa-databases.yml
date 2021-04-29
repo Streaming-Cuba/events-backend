@@ -1,7 +1,5 @@
 name: Update QA databases
 
-name: Update QA Database
-
 on:
   push:
     branches:
