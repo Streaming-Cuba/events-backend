@@ -221,6 +221,13 @@ namespace Events.API.Controllers
         [HttpPost("tag")]
         public async Task<ActionResult> CreateTag([FromBody] NTagCreateDTO tag)
         {
+            if ((await _context.Tags.FirstOrDefaultAsync(x => x.Name == tag.Name))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a tag with this name"
+                });
+            
             var _tag = _mapper.Map<NTag>(tag);
             await _context.Tags.AddAsync(_tag);
             await _context.SaveChangesAsync();
@@ -250,6 +257,13 @@ namespace Events.API.Controllers
         [HttpPost("social/platform-type")]
         public async Task<ActionResult> CreateSocialPlatformType([FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
         {
+            if ((await _context.SocialPlatformTypes.FirstOrDefaultAsync(x => x.Name == socialPlatformType.Name))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a social platform type with this name"
+                });
+            
             var _socialPlatformType = _mapper.Map<SocialPlatformType>(socialPlatformType);
             await _context.SocialPlatformTypes.AddAsync(_socialPlatformType);
             await _context.SaveChangesAsync();
@@ -260,6 +274,13 @@ namespace Events.API.Controllers
         [HttpPost("category")]
         public async Task<ActionResult> CreateCategory([FromBody] NCategoryCreateDTO category)
         {
+            if ((await _context.Categories.FirstOrDefaultAsync(x => x.Name == category.Name))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a tag with this name"
+                });
+            
             var _category = _mapper.Map<NCategory>(category);
             await _context.Categories.AddAsync(_category);
             await _context.SaveChangesAsync();
@@ -270,6 +291,13 @@ namespace Events.API.Controllers
         [HttpPost("event-status")]
         public async Task<ActionResult> CreateEventStatus([FromBody] NEventStatusCreateDTO eventStatus)
         {
+            if ((await _context.EventStatuses.FirstOrDefaultAsync(x => x.Name == eventStatus.Name))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a event status with this name"
+                });
+
             var _eventStatus = _mapper.Map<NEventStatus>(eventStatus);
             await _context.EventStatuses.AddAsync(_eventStatus);
             await _context.SaveChangesAsync();
@@ -280,6 +308,13 @@ namespace Events.API.Controllers
         [HttpPost("group/item-type")]
         public async Task<ActionResult> CreateGroupItemType([FromBody] GroupItemTypeCreateDTO groupItemType)
         {
+            if ((await _context.GroupItemTypes.FirstOrDefaultAsync(x => x.Name == groupItemType.Name))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a tag with this name"
+                });
+            
             var _groupItemType = _mapper.Map<GroupItemType>(groupItemType);
             await _context.GroupItemTypes.AddAsync(_groupItemType);
             await _context.SaveChangesAsync();

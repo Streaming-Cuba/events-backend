@@ -38,7 +38,7 @@ namespace Events.API.Controllers
                 != null)
                 return BadRequest(new
                 {
-                    error = "Already exists a subscriber with thid email"
+                    error = "Already exists a subscriber with this email"
                 });
 
             var _subscriber = _mapper.Map<Subscriber>(subscriber);
