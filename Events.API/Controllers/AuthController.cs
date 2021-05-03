@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using Events.API.DTO;
+using AutoMapper;
 
 namespace Events.API.Controllers
 {
@@ -23,13 +25,16 @@ namespace Events.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly AccountContext _context;
         private readonly PasswordHasher<string> _passwordHasher;
+        private readonly IMapper _mapper; 
 
         public AuthController(IConfiguration configuration,
-                                AccountContext context)
+                              AccountContext context,
+                              IMapper mapper)
         {
             _configuration = configuration;
             _context = context;
             _passwordHasher = new PasswordHasher<string>();
+            _mapper = mapper;
         }
 
         [AllowAnonymous]
@@ -51,6 +56,18 @@ namespace Events.API.Controllers
             return response;
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<AccountReadDTO> GetMe()
+        {
+            var id = int.Parse(HttpContext.User.FindFirst(ClaimTypes.Name).Value);
+            var account = await _context.Accounts
+                .Include(d => d.Roles)
+                .ThenInclude(p => p.Role)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            return _mapper.Map<AccountReadDTO>(account);
+        }
+
         private string GenerateJSONWebToken(Account userInfo)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -58,7 +75,7 @@ namespace Events.API.Controllers
 
             var claims = userInfo.Roles
                 .Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
-                .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
+                .Prepend(new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString())).ToArray();
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
