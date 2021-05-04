@@ -30,11 +30,17 @@ namespace Events.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody]SubscriberCreateDTO subscriber) 
+        public async Task<ActionResult> Create([FromBody] SubscriberCreateDTO subscriber)
         {
             if (!subscriber.Email.IsEmail())
                 return ValidationProblem();
-            
+            if ((await _context.Subscribers.FirstOrDefaultAsync(x => x.Email == subscriber.Email))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a subscriber with this email"
+                });
+
             var _subscriber = _mapper.Map<Subscriber>(subscriber);
             await _context.Subscribers.AddAsync(_subscriber);
             await _context.SaveChangesAsync();

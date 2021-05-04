@@ -15,7 +15,18 @@ namespace Events.API.Profiles {
             CreateMap<InteractionCreateDTO, Interaction>();
             CreateMap<NCategoryCreateDTO, NCategory>();
             CreateMap<SocialPlatformTypeCreateDTO, SocialPlatformType>();
-            CreateMap<EventCreateDTO, Event>();            
+            CreateMap<EventCreateDTO, Event>();   
+
+            // reverse
+            CreateMap<Group, GroupCreateDTO>();
+            CreateMap<Social, SocialCreateDTO>();
+            CreateMap<NTag, NTagCreateDTO>();
+            CreateMap<GroupItemType, GroupItemTypeCreateDTO>();
+            CreateMap<NEventStatus, NEventStatusCreateDTO>();
+            CreateMap<Interaction, InteractionCreateDTO>();
+            CreateMap<NCategory, NCategoryCreateDTO>();
+            CreateMap<SocialPlatformType, SocialPlatformTypeCreateDTO>();
+            CreateMap<Event, EventCreateDTO>();   
         }
     }
 }

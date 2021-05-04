@@ -43,6 +43,13 @@ namespace Events.API.Controllers
                 string.IsNullOrWhiteSpace(account.Password))
                 return ValidationProblem();
 
+            if ((await _context.Accounts.FirstOrDefaultAsync(x => x.Email == account.Email))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a account with this email"
+                });                
+
             var _account = _mapper.Map<Account>(account);
 
             _account.CreatedAt = DateTime.UtcNow;
@@ -97,6 +104,13 @@ namespace Events.API.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
         {
+            if ((await _context.Roles.FirstOrDefaultAsync(x => x.Name == role.Name))
+                != null)
+                return BadRequest(new
+                {
+                    error = "Already exists a role with this name"
+                });
+            
             var _role = _mapper.Map<Role>(role);
             await _context.Roles.AddAsync(_role);
             await _context.SaveChangesAsync();
