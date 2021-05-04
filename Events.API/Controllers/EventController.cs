@@ -439,6 +439,8 @@ namespace Events.API.Controllers
         #endregion
     
         #region Patch models
+        
+
         [HttpPatch("category/{id}")]
         public async Task<ActionResult> PatchCategory([FromRoute] int id,
                                                       [FromBody] [Required] JsonPatchDocument<NCategoryCreateDTO> category)
@@ -450,7 +452,6 @@ namespace Events.API.Controllers
             category.ApplyTo(_category, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
             await _context.SaveChangesAsync();
             return Ok();
         }

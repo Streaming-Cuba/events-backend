@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
@@ -11,11 +12,12 @@ namespace Events.API.Helpers
         public static void ApplyTo<TModelDTO, TModel>(this JsonPatchDocument<TModelDTO> patchDTO,
                                                       TModel model,
                                                       IMapper mapper,
-                                                      ModelStateDictionary modelState) where TModelDTO : class
+                                                      ModelStateDictionary modelState,
+                                                      Predicate<TModelDTO> predicate = null) where TModelDTO : class
         {
             var dto = mapper.Map<TModelDTO>(model);
             patchDTO.ApplyTo(dto, modelState);
-            if (modelState.IsValid)
+            if (modelState.IsValid && predicate?.Invoke(dto) == true)
                 model = mapper.Map<TModelDTO, TModel>(dto, model);
         }
     }
