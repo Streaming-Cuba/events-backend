@@ -439,9 +439,8 @@ namespace Events.API.Controllers
         #endregion
 
         #region Patch models
-
         [Authorize(Roles = "Administrator")]
-        [HttpPut("group/item-type/{id}")]
+        [HttpPatch("group/item-type/{id}")]
         public async Task<ActionResult> PatchGroupItemType([FromRoute] int id,
                                                            [FromBody] JsonPatchDocument<GroupItemTypeCreateDTO> groupItemType)
         {
@@ -509,7 +508,7 @@ namespace Events.API.Controllers
 
         
         [Authorize(Roles = "Administrator")]
-        [HttpPut("interaction/{id}")]
+        [HttpPatch("interaction/{id}")]
         public async Task<ActionResult> PatchInteraction([FromRoute] int id,
                                                          [FromBody] JsonPatchDocument<InteractionCreateDTO> interaction)
         {
@@ -525,7 +524,7 @@ namespace Events.API.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpPatch("event-status/{id}")]
+        [HttpPatch("tag/{id}")]
         public async Task<ActionResult> PatchTag([FromRoute] int id,
                                                  [FromBody] JsonPatchDocument<NTagCreateDTO> tag)
         {
@@ -559,6 +558,27 @@ namespace Events.API.Controllers
                 if ((await _context.Categories.FirstOrDefaultAsync(x => x.Name == s.Name))
                 != null)
                     ModelState.AddModelError("Category.Name", "Already exists a category with this name");
+            });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        
+        [Authorize(Roles = "Administrator")]
+        [HttpPatch("social/platform-type/{id}")]
+        public async Task<ActionResult> PatchSocialPlatformType([FromRoute] int id,
+                                                                [FromBody] JsonPatchDocument<SocialPlatformTypeCreateDTO> socialPlatformType)
+        {
+             var _socialPlatformType = await _context.Tags.FindAsync(id);
+            if (_socialPlatformType == null)
+                return NotFound(id);
+
+            socialPlatformType.ApplyTo(_socialPlatformType, _mapper, ModelState, async s =>
+            {
+                if ((await _context.SocialPlatformTypes.FirstOrDefaultAsync(x => x.Name == s.Name))
+                != null)
+                    ModelState.AddModelError("Tag.Name", "Already exists a social platfrom type with this name");
             });
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
