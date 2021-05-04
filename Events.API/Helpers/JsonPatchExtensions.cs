@@ -9,15 +9,17 @@ namespace Events.API.Helpers
 {
     public static class JsonPatchExtensions
     {
-        public static void ApplyTo<TModelDTO, TModel>(this JsonPatchDocument<TModelDTO> patchDTO,
-                                                      TModel model,
-                                                      IMapper mapper,
-                                                      ModelStateDictionary modelState,
-                                                      Predicate<TModelDTO> predicate = null) where TModelDTO : class
+        public static void ApplyTo<TModelDTO, TModel>(
+            this JsonPatchDocument<TModelDTO> patchDTO,
+            TModel model,
+            IMapper mapper,
+            ModelStateDictionary modelState,
+            Action<TModelDTO> action = null) where TModelDTO : class
         {
             var dto = mapper.Map<TModelDTO>(model);
             patchDTO.ApplyTo(dto, modelState);
-            if (modelState.IsValid && predicate?.Invoke(dto) == true)
+            action?.Invoke(dto);
+            if (modelState.IsValid)
                 model = mapper.Map<TModelDTO, TModel>(dto, model);
         }
     }

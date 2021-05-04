@@ -54,7 +54,7 @@ namespace Events.API.Controllers
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
 
-                    .SingleOrDefaultAsync(x => x.Identifier == identifier);            
+                    .SingleOrDefaultAsync(x => x.Identifier == identifier);
 
             if (item == null)
                 return NotFound();
@@ -229,7 +229,7 @@ namespace Events.API.Controllers
                 {
                     error = "Already exists a tag with this name"
                 });
-            
+
             var _tag = _mapper.Map<NTag>(tag);
             await _context.Tags.AddAsync(_tag);
             await _context.SaveChangesAsync();
@@ -265,7 +265,7 @@ namespace Events.API.Controllers
                 {
                     error = "Already exists a social platform type with this name"
                 });
-            
+
             var _socialPlatformType = _mapper.Map<SocialPlatformType>(socialPlatformType);
             await _context.SocialPlatformTypes.AddAsync(_socialPlatformType);
             await _context.SaveChangesAsync();
@@ -282,7 +282,7 @@ namespace Events.API.Controllers
                 {
                     error = "Already exists a tag with this name"
                 });
-            
+
             var _category = _mapper.Map<NCategory>(category);
             await _context.Categories.AddAsync(_category);
             await _context.SaveChangesAsync();
@@ -316,7 +316,7 @@ namespace Events.API.Controllers
                 {
                     error = "Already exists a tag with this name"
                 });
-            
+
             var _groupItemType = _mapper.Map<GroupItemType>(groupItemType);
             await _context.GroupItemTypes.AddAsync(_groupItemType);
             await _context.SaveChangesAsync();
@@ -437,19 +437,129 @@ namespace Events.API.Controllers
         }
 
         #endregion
-    
-        #region Patch models
-        
 
+        #region Patch models
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("group/item-type/{id}")]
+        public async Task<ActionResult> PatchGroupItemType([FromRoute] int id,
+                                                           [FromBody] JsonPatchDocument<GroupItemTypeCreateDTO> groupItemType)
+        {
+            var _groupItemType = await _context.GroupItemTypes.FindAsync(id);
+            if (_groupItemType == null)
+                return NotFound(id);
+
+            groupItemType.ApplyTo(_groupItemType, _mapper, ModelState, async s =>
+            {
+                if ((await _context.GroupItemTypes.FirstOrDefaultAsync(x => x.Name == s.Name))
+                != null)
+                    ModelState.AddModelError("GroupItemType.Name", "Already exists a group item type status with this name");
+            });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPatch("social/{id}")]
+        public async Task<ActionResult> PatchSocial([FromRoute] int id,
+                                                    [FromBody] JsonPatchDocument<SocialCreateDTO> social)
+        {
+            var _social = await _context.Socials.FindAsync(id);
+            if (_social == null)
+                return NotFound(id);
+
+            social.ApplyTo(_social, _mapper, ModelState, async x =>
+            {
+                var type = await _context.SocialPlatformTypes.FindAsync(x.PlatformTypeId);
+                if (type == null)
+                    ModelState.AddModelError("Social.PlatformTypeId", $"The platform type with id: {x.PlatformTypeId} don't exists");
+                else
+                    _social.PlatformType = type;
+            });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPatch("event-status/{id}")]
+        public async Task<ActionResult> PatchEventStatus([FromRoute] int id,
+                                                         [FromBody] JsonPatchDocument<NEventStatusCreateDTO> eventStatus)
+        {
+            var _eventStatus = await _context.EventStatuses.FindAsync(id);
+            if (_eventStatus == null)
+                return NotFound(id);
+
+            eventStatus.ApplyTo(_eventStatus, _mapper, ModelState, async s =>
+            {
+                if ((await _context.EventStatuses.FirstOrDefaultAsync(x => x.Name == s.Name))
+                != null)
+                    ModelState.AddModelError("EventStatus.Name", "Already exists a event status with this name");
+            });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        
+        [Authorize(Roles = "Administrator")]
+        [HttpPut("interaction/{id}")]
+        public async Task<ActionResult> PatchInteraction([FromRoute] int id,
+                                                         [FromBody] JsonPatchDocument<InteractionCreateDTO> interaction)
+        {
+            var _interaction = await _context.Interactions.FindAsync(id);
+            if (_interaction == null)
+                return NotFound(id);
+
+            interaction.ApplyTo(_interaction, _mapper, ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPatch("event-status/{id}")]
+        public async Task<ActionResult> PatchTag([FromRoute] int id,
+                                                 [FromBody] JsonPatchDocument<NTagCreateDTO> tag)
+        {
+             var _tag = await _context.Tags.FindAsync(id);
+            if (_tag == null)
+                return NotFound(id);
+
+            tag.ApplyTo(_tag, _mapper, ModelState, async s =>
+            {
+                if ((await _context.Tags.FirstOrDefaultAsync(x => x.Name == s.Name))
+                != null)
+                    ModelState.AddModelError("Tag.Name", "Already exists a tag with this name");
+            });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize(Roles = "Administrator")]
         [HttpPatch("category/{id}")]
         public async Task<ActionResult> PatchCategory([FromRoute] int id,
-                                                      [FromBody] [Required] JsonPatchDocument<NCategoryCreateDTO> category)
+                                                      [FromBody] JsonPatchDocument<NCategoryCreateDTO> category)
         {
             var _category = await _context.Categories.FindAsync(id);
             if (_category == null)
                 return NotFound(id);
 
-            category.ApplyTo(_category, _mapper, ModelState);
+            category.ApplyTo(_category, _mapper, ModelState, async s =>
+            {
+                if ((await _context.Categories.FirstOrDefaultAsync(x => x.Name == s.Name))
+                != null)
+                    ModelState.AddModelError("Category.Name", "Already exists a category with this name");
+            });
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
