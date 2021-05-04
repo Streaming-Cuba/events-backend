@@ -56,6 +56,7 @@ namespace Events.API
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+
             // Verify
             // UNSAFE
             services.AddCors(options =>
@@ -68,7 +69,8 @@ namespace Events.API
                 });
             });
 
-            services.AddControllers();
+            services.AddControllers()
+                    .AddNewtonsoftJson();
 
             services.AddSwaggerGen(c =>
             {

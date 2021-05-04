@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
+using Events.API.Helpers;
 
 namespace Events.API.Controllers
 {
@@ -434,6 +436,24 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        #endregion
+    
+        #region Patch models
+        [HttpPatch("category/{id}")]
+        public async Task<ActionResult> PatchCategory([FromRoute] int id,
+                                                      [FromBody] [Required] JsonPatchDocument<NCategoryCreateDTO> category)
+        {
+            var _category = await _context.Categories.FindAsync(id);
+            if (_category == null)
+                return NotFound(id);
+
+            category.ApplyTo(_category, _mapper, ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
         #endregion
     }
 }

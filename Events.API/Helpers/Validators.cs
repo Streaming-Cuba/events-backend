@@ -1,7 +1,9 @@
 using System.Text.RegularExpressions;
 
-namespace Events.API.Helpers {
-    public static class Validators {
+namespace Events.API.Helpers
+{
+    public static class Validators
+    {
         public static bool IsEmail(this string value) =>
             Regex.IsMatch(value, @"^[a-zA-z0-9\.]+@([a-z0-9]+\.)+([a-z0-9]+)");
 
