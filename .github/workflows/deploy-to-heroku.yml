@@ -33,7 +33,6 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-        
       - name: Installing Entity Framework Tools
         run: dotnet tool install --global dotnet-ef
         
@@ -43,6 +42,17 @@ jobs:
           dotnet ef database update --context AccountContext --project ./Events.API  
           dotnet ef database update --context SubscriberContext --project ./Events.API 
 
+      - uses: actions/checkout@v2
+      - name: Replace secrets
+        run: |
+         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.QA_DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.QA_DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_USER/${{ secrets.QA_DATABASE_USER }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_PASSWORD/${{ secrets.QA_DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
+         sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
