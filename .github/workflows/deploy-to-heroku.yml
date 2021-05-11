@@ -43,7 +43,6 @@ jobs:
           dotnet ef database update --context AccountContext --project ./Events.API  
           dotnet ef database update --context SubscriberContext --project ./Events.API 
 
-      - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
