@@ -1,14 +1,15 @@
 using System;
 using Xunit;
+using Events.API.Controllers;
 
 namespace Events.API.Tests
 {
-    public class UnitTest1
+    public class AuthControllerTest
     {
         [Fact]
         public void Test1()
         {
-
+            
         }
     }
 }

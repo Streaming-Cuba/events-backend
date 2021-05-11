@@ -38,8 +38,6 @@ namespace Events.API.Controllers
             // validate data
             if (!account.Email.IsEmail() ||
                 (!string.IsNullOrWhiteSpace(account.AvatarPath) && !account.AvatarPath.IsUrl()) ||
-                string.IsNullOrWhiteSpace(account.LastName) ||
-                string.IsNullOrWhiteSpace(account.Name) ||
                 string.IsNullOrWhiteSpace(account.Password))
                 return ValidationProblem();
 
@@ -56,6 +54,12 @@ namespace Events.API.Controllers
             _account.ModifiedAt = DateTime.UtcNow;
             _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
             _account.Roles = new List<AccountRole>();
+
+            if (account.RolesId.Count == 0)
+                return BadRequest(new
+                {
+                    error = $"The account must have least one role"
+                });
 
             foreach (var roleId in account.RolesId)
             {
