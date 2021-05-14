@@ -50,9 +50,9 @@ namespace Events.API.Tests
             var role = await context.Roles.FirstOrDefaultAsync();
 
             Assert.NotNull(role);
-            Assert.Equal(role.Id, 1);
-            Assert.Equal(role.Name, "Administrator");
-            Assert.Equal(role.Description, "Don't work any time");
+            Assert.Equal(1, role.Id);
+            Assert.Equal("Administrator", role.Name);
+            Assert.Equal("Don't work any time", role.Description);
         }
 
         [Fact]
@@ -104,14 +104,14 @@ namespace Events.API.Tests
             var account = await context.Accounts.Include(d => d.Roles).FirstOrDefaultAsync();
 
             Assert.NotNull(account);
-            Assert.Equal(account.Id, 1);
-            Assert.Equal(account.Name, "Juan");
-            Assert.Equal(account.LastName, "Cabilla Gonzales");
-            Assert.Equal(account.AvatarPath, "https://github.com/cl8dep.png");
-            Assert.Equal(account.Email, "cl8dep@gmail.com");
-            Assert.NotEqual(account.Password, "12345678");
-            Assert.Equal(account.Roles.Count, 1);
-            Assert.Equal(account.Roles.FirstOrDefault().Role, role);
+            Assert.Equal(1, account.Id);
+            Assert.Equal("Juan", account.Name);
+            Assert.Equal("Cabilla Gonzales", account.LastName);
+            Assert.Equal("https://github.com/cl8dep.png", account.AvatarPath);
+            Assert.Equal("cl8dep@gmail.com", account.Email);
+            Assert.NotEqual("12345678", account.Password);
+            Assert.Equal(1, account.Roles.Count);
+            Assert.Equal(role, account.Roles.FirstOrDefault().Role);
         }
 
         [Fact]
