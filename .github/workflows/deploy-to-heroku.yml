@@ -55,7 +55,7 @@ jobs:
          sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
          sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
          sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
-         sed -i 's/MEDIA_PATH/${{ secrets.MEDIA_PATH }}/g' Events.API/appsettings.json
+         sed -i 's/MEDIA_PATH/${{ secrets.QA_MEDIA_PATH }}/g' Events.API/appsettings.json
 
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
