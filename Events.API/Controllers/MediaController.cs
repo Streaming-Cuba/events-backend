@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -65,7 +66,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("file/{path}")]
-        public async Task<IActionResult> CreateFile([FromRoute] string path, [FromQuery] bool overwrite, IFormFile file)
+        public async Task<IActionResult> CreateFile([FromRoute] string path, [FromQuery] bool overwrite, [Required] IFormFile file)
         {
             path = Uri.UnescapeDataString(path);
             if (Path.GetInvalidPathChars().Any(x => path.Contains(x)))
