@@ -8,6 +8,7 @@ using Events.API.Services.CDN;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Events.API.Controllers
 {
@@ -15,9 +16,12 @@ namespace Events.API.Controllers
     [ApiController]
     public class MediaController : ControllerBase
     {
-        public MediaController(ICdnService cdnService)
+        private readonly string _basePath;
+
+        public MediaController(ICdnService cdnService, IConfiguration configuration)
         {
             _cdnservice = cdnService;
+            _basePath = configuration["Media:Path"];
         }
 
         public readonly ICdnService _cdnservice;
@@ -32,6 +36,25 @@ namespace Events.API.Controllers
             {
                 Url = result.Url
             });
+        }
+
+        [HttpPost("folder/{path}")]
+        public IActionResult CreateFolder([FromRoute] string path)
+        {
+            if (Path.GetInvalidPathChars().Any(x => path.Contains(x)))
+                return BadRequest(new
+                {
+                    error = "The path contains invalid characters"
+                });
+            
+            string directoryPath = Path.Join(_basePath, path);
+            if (Directory.Exists(directoryPath))
+                return BadRequest(new
+                {
+                    error = "This folder already exists"
+                });
+            Directory.CreateDirectory(directoryPath);
+            return Ok();
         }
     }
 }
