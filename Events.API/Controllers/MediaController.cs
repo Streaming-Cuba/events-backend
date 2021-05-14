@@ -24,6 +24,7 @@ namespace Events.API.Controllers
         [HttpPost("folder/{path}")]
         public IActionResult CreateFolder([FromRoute] string path)
         {
+            path = Uri.UnescapeDataString(path);            
             if (Path.GetInvalidPathChars().Any(x => path.Contains(x)))
                 return BadRequest(new
                 {
@@ -43,6 +44,7 @@ namespace Events.API.Controllers
         [HttpDelete("folder/{path}")]
         public IActionResult DeleteFolder([FromRoute] string path)
         {
+            path = Uri.UnescapeDataString(path);            
             if (Path.GetInvalidPathChars().Any(x => path.Contains(x)))
                 return BadRequest(new
                 {
