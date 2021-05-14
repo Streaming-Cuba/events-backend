@@ -107,8 +107,9 @@ namespace Events.API.Controllers
         public IActionResult DownloadFile([FromRoute] string path) 
                 => RedirectPermanent($"https://media.streamingcuba.com/{Uri.UnescapeDataString(path)}");
 
+        [Authorize(Roles = "Administrator")]
         [HttpGet("folder/{path}")]
-        public IActionResult EnumerateEntries([FromRoute] string path) 
+        public ActionResult<List<EntryInfo>> EnumerateEntries([FromRoute] string path) 
         {
             path = Uri.UnescapeDataString(path);
             if (Path.GetInvalidPathChars().Any(x => path.Contains(x)))
