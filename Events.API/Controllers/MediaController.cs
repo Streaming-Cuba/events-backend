@@ -99,5 +99,8 @@ namespace Events.API.Controllers
 
             return Ok();
         }
+
+        [HttpGet("file/{path}")]
+        public IActionResult DownloadFile([FromRoute] string path) => RedirectPermanent($"https://media.streamingcuba.com/{Uri.UnescapeDataString(path)}");
     }
 }
