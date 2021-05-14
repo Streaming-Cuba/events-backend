@@ -65,6 +65,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpPost("file/{path}")]
         public async Task<IActionResult> CreateFile([FromRoute] string path, [FromQuery] bool overwrite, [Required] IFormFile file)
         {
@@ -101,6 +102,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("file/{path}")]
-        public IActionResult DownloadFile([FromRoute] string path) => RedirectPermanent($"https://media.streamingcuba.com/{Uri.UnescapeDataString(path)}");
+        public IActionResult DownloadFile([FromRoute] string path) 
+                => RedirectPermanent($"https://media.streamingcuba.com/{Uri.UnescapeDataString(path)}");
     }
 }
