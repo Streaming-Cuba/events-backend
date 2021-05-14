@@ -65,6 +65,8 @@ namespace Events.API.Controllers
                 .Include(d => d.Roles)
                 .ThenInclude(p => p.Role)
                 .FirstOrDefaultAsync(x => x.Id == id);
+
+            // FIX: map to relative id of roles
             return _mapper.Map<AccountReadDTO>(account);
         }
 
@@ -75,7 +77,7 @@ namespace Events.API.Controllers
 
             var claims = userInfo.Roles
                 .Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
-                .Prepend(new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString())).ToArray();
+                .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
