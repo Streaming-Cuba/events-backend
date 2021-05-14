@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Events.API.Services.CDN;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,24 +16,9 @@ namespace Events.API.Controllers
     {
         private readonly string _basePath;
 
-        public MediaController(ICdnService cdnService, IConfiguration configuration)
+        public MediaController (IConfiguration configuration)
         {
-            _cdnservice = cdnService;
             _basePath = configuration["Media:Path"];
-        }
-
-        public readonly ICdnService _cdnservice;
-
-        [HttpPost("upload")]
-        public IActionResult UploadPhoto(IFormFile photo)
-        {
-            var stream = photo.OpenReadStream();
-            var result = _cdnservice.UploadPhoto(photo.FileName, stream);
-
-            return Ok(new
-            {
-                Url = result.Url
-            });
         }
 
         [HttpPost("folder/{path}")]
