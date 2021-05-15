@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using Events.API.Data;
-using Events.API.Services.CDN;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,8 +51,6 @@ namespace Events.API
             services.AddDbContext<SubscriberContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("SubscribersConnection")));
 
             // Services
-            services.AddSingleton<ICdnService, CloudinaryService>();
-
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 

@@ -60,7 +60,8 @@ namespace Events.API.Controllers
                 return NotFound();
 
             // bad performance
-            item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
+            if (item.Groups != null)
+                item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
             return Ok(item);
         }
         #endregion
