@@ -108,7 +108,7 @@ namespace Events.API.Controllers
                 => RedirectPermanent($"https://media.streamingcuba.com/{Uri.UnescapeDataString(path)}");
 
         [Authorize(Roles = "Administrator")]
-        [HttpGet("folder/{path}")]
+        [HttpGet("folder/{path?}")]
         public ActionResult<List<EntryInfo>> EnumerateEntries([FromRoute] string path) 
         {
             path = Uri.UnescapeDataString(path);
