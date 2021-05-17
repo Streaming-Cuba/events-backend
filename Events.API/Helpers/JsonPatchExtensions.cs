@@ -9,7 +9,7 @@ namespace Events.API.Helpers
 {
     public static class JsonPatchExtensions
     {
-        public static void ApplyTo<TModelDTO, TModel>(
+        public static TModelDTO ApplyTo<TModelDTO, TModel>(
             this JsonPatchDocument<TModelDTO> patchDTO,
             TModel model,
             IMapper mapper,
@@ -21,6 +21,7 @@ namespace Events.API.Helpers
             action?.Invoke(dto);
             if (modelState.IsValid)
                 model = mapper.Map<TModelDTO, TModel>(dto, model);
+            return dto;
         }
     }
 }
