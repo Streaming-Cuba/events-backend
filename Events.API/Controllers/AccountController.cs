@@ -83,14 +83,14 @@ namespace Events.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<AccountReadDTO>> GetAccountByEmail([FromQuery][Required] string email)
+        public ActionResult<IEnumerable<AccountReadDTO>> GetAccounts([FromQuery] string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 return ValidationProblem();
 
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
+            var account = _context.Accounts.Where(x => x.Email == email);
             if (account != null)
-                return _mapper.Map<AccountReadDTO>(account);
+                return Ok(account.Select(x => _mapper.Map<AccountReadDTO>(x)));
             return NotFound(email);
         }
 
@@ -102,7 +102,6 @@ namespace Events.API.Controllers
                 return _mapper.Map<AccountReadDTO>(account);
             return NotFound(id);
         }
-
 
         [HttpPost("role")]
         [Authorize(Roles = "Administrator")]
