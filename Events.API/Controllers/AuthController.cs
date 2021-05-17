@@ -66,7 +66,6 @@ namespace Events.API.Controllers
                 .ThenInclude(p => p.Role)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            // FIX: map to relative id of roles
             return _mapper.Map<AccountReadDTO>(account);
         }
 

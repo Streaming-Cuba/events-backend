@@ -26,7 +26,14 @@ namespace Events.API.Profiles {
             CreateMap<Interaction, InteractionCreateDTO>();
             CreateMap<NCategory, NCategoryCreateDTO>();
             CreateMap<SocialPlatformType, SocialPlatformTypeCreateDTO>();
-            CreateMap<Event, EventCreateDTO>();   
+
+            CreateMap<Event, EventCreateDTO>().ForMember(d => d.TagsId, cfg => cfg.MapFrom(s => s.Tags))
+                                              .ForMember(d => d.CategoryId, cfg => cfg.MapFrom(s => s.Category.Id))
+                                              .ForMember(d => d.StatusId, cfg => cfg.MapFrom(s => s.Status.Id));
+
+
+            CreateMap<EventTag, int>().ConstructUsing(x => x.TagId);
+            CreateMap<EventSocial, int>().ConstructUsing(x => x.SocialId);
         }
     }
 }

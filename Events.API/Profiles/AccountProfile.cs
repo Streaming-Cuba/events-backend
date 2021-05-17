@@ -10,7 +10,8 @@ namespace Events.API.Profiles {
             CreateMap<AccountCreateDTO, Account>();
 
             // flattening without context roles
-            CreateMap<Account, AccountReadDTO>().ForMember(d => d.RolesId, cfg => cfg.MapFrom(m => m.Roles));
+            CreateMap<Account, AccountReadDTO>().ForMember(d => d.RolesId,
+                                                           cfg => cfg.MapFrom(m => m.Roles));
             CreateMap<AccountRole, int>().ConvertUsing(x => x.RoleId);
             
             CreateMap<RoleCreateDTO, Role>();
