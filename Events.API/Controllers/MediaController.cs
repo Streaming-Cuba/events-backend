@@ -91,7 +91,7 @@ namespace Events.API.Controllers
             }
             catch (PathTooLongException)
             {
-                return BadRequest(new 
+                return BadRequest(new
                 {
                     error = "The result path is too long"
                 });
@@ -101,15 +101,16 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("file/{*path}")]
-        public IActionResult DownloadFile([FromRoute] string path) 
+        public IActionResult DownloadFile([FromRoute] string path)
                 => RedirectPermanent($"https://media.streamingcuba.com/{path}");
 
         [Authorize(Roles = "Administrator")]
         [HttpGet("folder/{*path}")]
-        public ActionResult<List<EntryInfo>> EnumerateEntries([FromRoute] string path) 
+        public ActionResult<List<EntryInfo>> EnumerateEntries([FromRoute] string path)
         {
             string directoryPath = null;
-            if (path != null){
+            if (path != null)
+            {
                 if (Path.GetInvalidPathChars().Any(x => path.Contains(x)))
                     return BadRequest(new
                     {
@@ -122,20 +123,29 @@ namespace Events.API.Controllers
                     {
                         error = "This folder not exists"
                     });
-            } else {
+            }
+            else
+            {
                 directoryPath = _basePath;
             }
-            
-            var directoryInfo = new DirectoryInfo(directoryPath);            
+
+            var directoryInfo = new DirectoryInfo(directoryPath);
             List<EntryInfo> result = directoryInfo.EnumerateFileSystemInfos().Select(x => new EntryInfo
             {
                 Name = x.Name,
                 Extension = x.Extension,
                 ModificationTime = x.LastWriteTimeUtc,
-                IsDir = x.Attributes.HasFlag(FileAttributes.Directory)
+                IsDir = x.Attributes.HasFlag(FileAttributes.Directory),
+                Size = x.Attributes.HasFlag(FileAttributes.Directory) ? 0 : ComputeFileSize(x.FullName)
             }).ToList();
 
             return Ok(result);
         }
+
+        private long ComputeFileSize(string path) => (new FileInfo(path)).Length;
+
+        private long ComputeFolderSize(string path) 
+            => Directory.GetFiles(path).Select(x => (new FileInfo(path)).Length).Sum() +
+                Directory.GetDirectories(path).Select(x => ComputeFolderSize(x)).Sum();
     }
 }
