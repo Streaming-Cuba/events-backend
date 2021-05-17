@@ -75,25 +75,20 @@ namespace Events.API.Controllers
                     Role = role
                 });
             }
-            // _account.Role = role;
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public ActionResult<IEnumerable<AccountReadDTO>> GetAccounts([FromQuery] string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-                return ValidationProblem();
+            => Ok(email != null ? _context.Accounts.Include(d => d.Roles).Where(x => x.Email == email)?
+                                   .Select(x => _mapper.Map<AccountReadDTO>(x)) :
+                                   _context.Accounts.Include(d => d.Roles).Select(x => _mapper.Map<AccountReadDTO>(x)));
 
-            var account = _context.Accounts.Where(x => x.Email == email);
-            if (account != null)
-                return Ok(account.Select(x => _mapper.Map<AccountReadDTO>(x)));
-            return NotFound(email);
-        }
-
+        [Authorize(Roles = "Administrator")]
         [HttpGet("{id}")]
         public async Task<ActionResult<AccountReadDTO>> GetAccountById([FromRoute] int id)
         {
