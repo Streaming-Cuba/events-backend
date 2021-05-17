@@ -20,7 +20,7 @@ namespace Events.API.Helpers
             patchDTO.ApplyTo(dto, modelState);
             action?.Invoke(dto);
             if (modelState.IsValid)
-                model = mapper.Map<TModelDTO, TModel>(dto, model);
+                mapper.Map(dto, model);
             return dto;
         }
     }
