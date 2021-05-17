@@ -62,22 +62,15 @@ namespace Events.API.Controllers
 
             // bad performance
             if (item.Groups != null)
-                item.Groups = item.Groups.OrderBy(x => x.Order).ToList();            
+                item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
 
             return Ok(item);
         }
 
         [HttpGet("{identifier}/votes")]
-        public async Task<ActionResult<Event>> VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
+        public ActionResult<IEnumerable<GroupItemVote>> VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
         {
-            // [WARNING]: Super worst performance
-            Func<GroupItemVote, string> getIdentifier = x => {
-                Group p = x.GroupItem.Group;
-                while (p.EventId == null)
-                    p = p.GroupParent;
-                return p.Event.Identifier;
-            };
-            
+            // [WARNING]: Super worst performance           
             var result = _context.GroupItemVotes.Include(d => d.GroupItem)
                                                 .ThenInclude(p => p.Group)
                                                 .ThenInclude(p => p.Event)
@@ -85,19 +78,40 @@ namespace Events.API.Controllers
                                                 .Include(d => d.GroupItem)
                                                 .ThenInclude(p => p.Group)
                                                 .ThenInclude(p => p.GroupParent)
+                                                .ThenInclude(p => p.Event)
 
-                                                .AsSplitQuery() // perform in multiples queries
-                                                .Where(x => getIdentifier(x) == identifier)
-                                                .OrderByDescending(x => x.Count) as IQueryable<GroupItemVote>;
+                                                .Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Group)
+                                                .ThenInclude(p => p.GroupParent)
 
-            if (!string.IsNullOrWhiteSpace(type))
-                result = result.Where(x => x.Type == type);
+                                                .AsSplitQuery() // perform in multiples queries                                                
+                                                .AsEnumerable()
+                                                .Where(x =>
+                                                {
+                                                    Group p = x.GroupItem.Group;
+                                                    while (p.EventId == null)
+                                                        p = p.GroupParent;
+                                                    return p.Event.Identifier == identifier;
+                                                })
+                                                .OrderByDescending(x => x.Count)
+                                                .AsEnumerable();
 
-            if (limit != null)
-                result = result.Take(limit.Value);
-            
-            return Ok(await result.ToArrayAsync());
-        } 
+            if (result != null)
+            {
+                if (!string.IsNullOrWhiteSpace(type))
+                    result = result.Where(x => x.Type == type);
+
+                if (limit != null)
+                    result = result.Take(limit.Value);
+
+                return Ok(result.ToList());
+            }
+            else
+            {
+                // TODO: Replace
+                return Ok(new GroupItemVote[0]);
+            }
+        }
         #endregion
 
         #region Create models and push to database
@@ -542,7 +556,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        
+
         [Authorize(Roles = "Administrator")]
         [HttpPatch("interaction/{id}")]
         public async Task<ActionResult> PatchInteraction([FromRoute] int id,
@@ -564,7 +578,7 @@ namespace Events.API.Controllers
         public async Task<ActionResult> PatchTag([FromRoute] int id,
                                                  [FromBody] JsonPatchDocument<NTagCreateDTO> tag)
         {
-             var _tag = await _context.Tags.FindAsync(id);
+            var _tag = await _context.Tags.FindAsync(id);
             if (_tag == null)
                 return NotFound(id);
 
@@ -600,13 +614,13 @@ namespace Events.API.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
-        
+
         [Authorize(Roles = "Administrator")]
         [HttpPatch("social/platform-type/{id}")]
         public async Task<ActionResult> PatchSocialPlatformType([FromRoute] int id,
                                                                 [FromBody] JsonPatchDocument<SocialPlatformTypeCreateDTO> socialPlatformType)
         {
-             var _socialPlatformType = await _context.Tags.FindAsync(id);
+            var _socialPlatformType = await _context.Tags.FindAsync(id);
             if (_socialPlatformType == null)
                 return NotFound(id);
 
