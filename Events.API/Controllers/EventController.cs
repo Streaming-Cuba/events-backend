@@ -122,12 +122,15 @@ namespace Events.API.Controllers
             // validate data
             var _event = _mapper.Map<Event>(@event);
 
-            _event.Category = await _context.Categories.FindAsync(@event.CategoryId);
-            if (_event.Category == null)
-                return BadRequest(new
-                {
-                    error = $"The category with id: {@event.CategoryId} don't exists"
-                });
+            if (@event.CategoryId != null)
+            {
+                _event.Category = await _context.Categories.FindAsync(@event.CategoryId);
+                if (_event.Category == null)
+                    return BadRequest(new
+                    {
+                        error = $"The category with id: {@event.CategoryId} don't exists"
+                    });
+            }
 
             _event.Status = await _context.EventStatuses.FindAsync(@event.StatusId);
             if (_event.Status == null)
@@ -136,19 +139,22 @@ namespace Events.API.Controllers
                     error = $"The status with id: {@event.StatusId} don't exists"
                 });
 
-            foreach(var tagId in @event.TagsId)
+            if (@event.TagsId != null)
             {
-                var tag = await _context.Tags.FindAsync(tagId);
-                if (tag == null)
-                    return BadRequest(new
-                    {
-                        error = $"The tag with id: {tagId} don't exists"
-                    });
-                _event.Tags.Add(new EventTag
+                foreach (var tagId in @event.TagsId)
                 {
-                    Tag = tag,
-                    Event = _event
-                });
+                    var tag = await _context.Tags.FindAsync(tagId);
+                    if (tag == null)
+                        return BadRequest(new
+                        {
+                            error = $"The tag with id: {tagId} don't exists"
+                        });
+                    _event.Tags.Add(new EventTag
+                    {
+                        Tag = tag,
+                        Event = _event
+                    });
+                }
             }
 
             _event.CreatedAt = DateTime.UtcNow;
@@ -496,59 +502,66 @@ namespace Events.API.Controllers
         {
             // validate data
             var _event = await _context.Events.Include(d => d.Tags)
-                                              .AsSplitQuery()
+                                              .Include(d => d.Category)
+                                              .Include(d => d.Status)
                                               .FirstOrDefaultAsync(x => x.Id == id);
             if (_event == null)
                 return NotFound(id);
 
-            var dto = @event.ApplyTo(_event, _mapper, ModelState, async s =>
+            // [TODO]: Only check changed values
+            @event.ApplyTo(_event, _mapper, ModelState, async s =>
             {
-                if ((await _context.Categories.FindAsync(s.CategoryId)) == null) 
+                if (s.CategoryId != null)
                 {
-                    ModelState.AddModelError("Event.CategoryId", $"The category with id: {s.CategoryId} don't exists");
-                    return;
+                    var category = await _context.Categories.FindAsync(s.CategoryId);
+                    if (category == null)
+                    {
+                        ModelState.AddModelError("Event.CategoryId", $"The category with id: {s.CategoryId} don't exists");
+                        return;
+                    }
+                    else
+                    {
+                        _event.Category = category;
+                    }
                 }
-                if ((await _context.EventStatuses.FindAsync(s.StatusId)) == null) 
+                var status = await _context.EventStatuses.FindAsync(s.StatusId);
+                if (status == null)
                 {
                     ModelState.AddModelError("Event.StatusId", $"The status with id: {s.StatusId} don't exists");
                     return;
                 }
-                foreach(var tagId in s.TagsId) 
+                else
                 {
-                    if ((await _context.Tags.FindAsync(tagId)) == null) 
+                    _event.Status = status;
+                }
+                if (s.TagsId != null)
+                {
+                    foreach (var tagId in s.TagsId)
                     {
-                        ModelState.AddModelError("Event.TagsId", $"The tag with id: {tagId} don't exists");
-                        return;
+                        var tag = await _context.Tags.FindAsync(tagId);
+                        if (tag == null)
+                        {
+                            ModelState.AddModelError("Event.TagsId", $"The tag with id: {tagId} don't exists");
+                            return;
+                        }
+                        if (!_event.Tags.Any(x => x.TagId == tagId))
+                            _event.Tags.Add(new EventTag
+                            {
+                                Tag = tag,
+                                Event = _event
+                            });
                     }
+                    var toRemove = _event.Tags.Where(x => s.TagsId.Contains(x.TagId)).ToList();
+                    foreach(var item in toRemove)
+                        _event.Tags.Remove(item);
                 }
             });
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // [TODO]: DO IT IN AUTOMAPPER CONFIGURATION TO AVOID DOUBLE QUERY
-            // [PARTIAL SOLVE]: Can do it inside the action of .ApplyTo (Can carry partial updates)
-            _event.Category = await _context.Categories.FindAsync(dto.CategoryId);
-            _event.Status = await _context.EventStatuses.FindAsync(dto.StatusId);
-
             // Update modified field
             _event.ModifiedAt = DateTime.UtcNow;
-
-            // Regenerate tags id            
-            // [WARNING]: .ToList to avoid queries in ICollection while are deleting
-            // [WARNING]: Very bad performance
-            var toRemove = _event.Tags.Where(x => dto.TagsId.Contains(x.TagId)).ToList();
-            foreach(var item in toRemove)
-                _event.Tags.Remove(item);
-            foreach(var tagId in dto.TagsId.Where(x => !_event.Tags.Select(x => x.TagId).Contains(x))) 
-            {
-                var tag = await _context.Tags.FindAsync(tagId);
-                _event.Tags.Add(new EventTag
-                {
-                    Tag = tag,
-                    Event = _event
-                });
-            }
-
+            await _context.SaveChangesAsync();
             return Ok();
         }
 
