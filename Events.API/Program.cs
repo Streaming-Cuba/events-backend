@@ -46,8 +46,7 @@ namespace Events.API
                     configuration.ReadFrom.Configuration(context.Configuration)
                                  .ReadFrom.Services(services)
                                  .Enrich.FromLogContext()
-                                 .WriteTo.Console()
-                                 .WriteTo.File("./log.txt");
+                                 .WriteTo.Console();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
