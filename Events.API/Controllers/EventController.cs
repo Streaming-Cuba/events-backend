@@ -34,7 +34,7 @@ namespace Events.API.Controllers
         public async Task<ActionResult<IEnumerable<Event>>> ListEvents() => Ok(await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
-        public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
+        public async Task<ActionResult<Event>> EventByIdentifier([FromRoute] string identifier)
         {
             var item = await _context.Events
                     .Include(d => d.Groups)
@@ -53,6 +53,7 @@ namespace Events.API.Controllers
                     .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
+                    .AsSplitQuery() // perform in multiples queries
 
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
 
@@ -61,9 +62,42 @@ namespace Events.API.Controllers
 
             // bad performance
             if (item.Groups != null)
-                item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
+                item.Groups = item.Groups.OrderBy(x => x.Order).ToList();            
+
             return Ok(item);
         }
+
+        [HttpGet("{identifier}/votes")]
+        public async Task<ActionResult<Event>> VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
+        {
+            // [WARNING]: Super worst performance
+            Func<GroupItemVote, string> getIdentifier = x => {
+                Group p = x.GroupItem.Group;
+                while (p.EventId == null)
+                    p = p.GroupParent;
+                return p.Event.Identifier;
+            };
+            
+            var result = _context.GroupItemVotes.Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Group)
+                                                .ThenInclude(p => p.Event)
+
+                                                .Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Group)
+                                                .ThenInclude(p => p.GroupParent)
+
+                                                .AsSplitQuery() // perform in multiples queries
+                                                .Where(x => getIdentifier(x) == identifier)
+                                                .OrderByDescending(x => x.Count) as IQueryable<GroupItemVote>;
+
+            if (!string.IsNullOrWhiteSpace(type))
+                result = result.Where(x => x.Type == type);
+
+            if (limit != null)
+                result = result.Take(limit.Value);
+            
+            return Ok(await result.ToArrayAsync());
+        } 
         #endregion
 
         #region Create models and push to database
@@ -149,7 +183,8 @@ namespace Events.API.Controllers
         [HttpPost("vote")]
         public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
         {
-            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);
+            var groupItem = await _context.GroupItems.Include(d => d.Votes)
+                                                     .FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);
             if (groupItem == null)
                 return BadRequest(new
                 {

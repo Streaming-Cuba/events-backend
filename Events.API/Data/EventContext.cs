@@ -37,8 +37,12 @@ namespace Events.API.Data
         
         public EventContext(DbContextOptions<EventContext> options) : base(options) { }
 
-        // protected override void OnModelCreating(ModelBuilder modelBuilder) {
-
-        // }
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            // added parent 
+            modelBuilder.Entity<Group>()
+                        .HasOne(g => g.GroupParent)
+                        .WithMany(g => g.ChildGroups)
+                        .HasForeignKey(g => g.GroupParentId);
+        }
     }
 }
