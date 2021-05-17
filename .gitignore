@@ -12,6 +12,9 @@ project.lock.json
 # VS Code
 .vscode
 
+# Kanbn
+.kanbn
+
 # DotNet gloabl json
 global.json
 
