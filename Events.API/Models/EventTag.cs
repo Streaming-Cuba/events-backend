@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Events.API.Models
 {
     [Index(nameof(EventId), nameof(TagId), IsUnique = true)]
-    public class EventTag
+    public class EventTag : BaseModel
     {
         [Key]
         public int Id { get; set; }

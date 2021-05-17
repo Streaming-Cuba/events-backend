@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Events.API.Models
 {
-    public class Event
+    public class Event : BaseModel
     {
         [Key]
         public int Id { get; set; }

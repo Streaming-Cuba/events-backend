@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Events.API.Models
 {
-    public class Group
+    public class Group : BaseModel
     {
         [Key]
         public int Id { get; set; }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Events.API.Models
 {
-    public class Social
+    public class Social : BaseModel
     {
         [Key]
         public int Id { get; set; }

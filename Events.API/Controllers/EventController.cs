@@ -556,6 +556,7 @@ namespace Events.API.Controllers
                         _event.Tags.Remove(item);
                 }
             });
+            
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 

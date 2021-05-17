@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
 {
-    public class GroupItemMetadata
+    public class GroupItemMetadata : BaseModel
     {
         [Key]
         public int Id { get; set; }
