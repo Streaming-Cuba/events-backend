@@ -7,6 +7,6 @@ namespace Events.API.DTO
     public abstract class CreateModelDTO
     {
         public virtual async Task<bool> EnsureValidState (DbContext context,
-                                                          ModelStateDictionary ModelState) => true;
+                                                          ModelStateDictionary ModelState) => await Task.FromResult(true);
     }
 }

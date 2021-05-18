@@ -34,7 +34,6 @@ namespace Events.API.Models
         public NEventStatus Status { get; set; }
 
         [Required]
-
         public int StatusId { get; set; }
 
         public string Organizer { get; set; }

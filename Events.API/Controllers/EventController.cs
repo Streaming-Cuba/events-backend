@@ -509,58 +509,29 @@ namespace Events.API.Controllers
                 return NotFound(id);
 
             // [TODO]: Only check changed values
-            @event.ApplyTo(_event, _mapper, ModelState, async s =>
+            await @event.ApplyTo(_event, _context, _mapper, ModelState, s =>
             {
-                if (s.CategoryId != null)
-                {
-                    var category = await _context.Categories.FindAsync(s.CategoryId);
-                    if (category == null)
-                    {
-                        ModelState.AddModelError("Event.CategoryId", $"The category with id: {s.CategoryId} don't exists");
-                        return;
-                    }
-                    else
-                    {
-                        _event.Category = category;
-                    }
-                }
-                var status = await _context.EventStatuses.FindAsync(s.StatusId);
-                if (status == null)
-                {
-                    ModelState.AddModelError("Event.StatusId", $"The status with id: {s.StatusId} don't exists");
-                    return;
-                }
-                else
-                {
-                    _event.Status = status;
-                }
+                // Manual sync with EventsTags
                 if (s.TagsId != null)
                 {
                     foreach (var tagId in s.TagsId)
                     {
-                        var tag = await _context.Tags.FindAsync(tagId);
-                        if (tag == null)
-                        {
-                            ModelState.AddModelError("Event.TagsId", $"The tag with id: {tagId} don't exists");
-                            return;
-                        }
                         if (!_event.Tags.Any(x => x.TagId == tagId))
                             _event.Tags.Add(new EventTag
                             {
-                                Tag = tag,
-                                Event = _event
+                                TagId = tagId,
+                                EventId = id
                             });
                     }
-                    var toRemove = _event.Tags.Where(x => s.TagsId.Contains(x.TagId)).ToList();
+                    var toRemove = _event.Tags.Where(x => !s.TagsId.Contains(x.TagId)).ToList();
                     foreach(var item in toRemove)
                         _event.Tags.Remove(item);
                 }
             });
-            
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Update modified field
             _event.ModifiedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return Ok();
@@ -575,12 +546,7 @@ namespace Events.API.Controllers
             if (_groupItemType == null)
                 return NotFound(id);
 
-            groupItemType.ApplyTo(_groupItemType, _mapper, ModelState, async s =>
-            {
-                if ((await _context.GroupItemTypes.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("GroupItemType.Name", "Already exists a group item type status with this name");
-            });
+            await groupItemType.ApplyTo(_groupItemType, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -596,14 +562,7 @@ namespace Events.API.Controllers
             if (_social == null)
                 return NotFound(id);
 
-            social.ApplyTo(_social, _mapper, ModelState, async x =>
-            {
-                var type = await _context.SocialPlatformTypes.FindAsync(x.PlatformTypeId);
-                if (type == null)
-                    ModelState.AddModelError("Social.PlatformTypeId", $"The platform type with id: {x.PlatformTypeId} don't exists");
-                else
-                    _social.PlatformType = type;
-            });
+            await social.ApplyTo(_social, _context, _mapper, ModelState);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -621,12 +580,7 @@ namespace Events.API.Controllers
             if (_eventStatus == null)
                 return NotFound(id);
 
-            eventStatus.ApplyTo(_eventStatus, _mapper, ModelState, async s =>
-            {
-                if ((await _context.EventStatuses.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("EventStatus.Name", "Already exists a event status with this name");
-            });
+            await eventStatus.ApplyTo(_eventStatus, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -643,7 +597,7 @@ namespace Events.API.Controllers
             if (_interaction == null)
                 return NotFound(id);
 
-            interaction.ApplyTo(_interaction, _mapper, ModelState);
+            await interaction.ApplyTo(_interaction, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -659,12 +613,7 @@ namespace Events.API.Controllers
             if (_tag == null)
                 return NotFound(id);
 
-            tag.ApplyTo(_tag, _mapper, ModelState, async s =>
-            {
-                if ((await _context.Tags.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("Tag.Name", "Already exists a tag with this name");
-            });
+            await tag.ApplyTo(_tag, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -680,12 +629,7 @@ namespace Events.API.Controllers
             if (_category == null)
                 return NotFound(id);
 
-            category.ApplyTo(_category, _mapper, ModelState, async s =>
-            {
-                if ((await _context.Categories.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("Category.Name", "Already exists a category with this name");
-            });
+            await category.ApplyTo(_category, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -701,12 +645,7 @@ namespace Events.API.Controllers
             if (_socialPlatformType == null)
                 return NotFound(id);
 
-            socialPlatformType.ApplyTo(_socialPlatformType, _mapper, ModelState, async s =>
-            {
-                if ((await _context.SocialPlatformTypes.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("Tag.Name", "Already exists a social platfrom type with this name");
-            });
+            await socialPlatformType.ApplyTo(_socialPlatformType, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();

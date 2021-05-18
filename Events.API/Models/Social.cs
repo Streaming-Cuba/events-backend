@@ -11,6 +11,9 @@ namespace Events.API.Models
         public SocialPlatformType PlatformType { get; set; }
 
         [Required]
+        public int PlatformTypeId { get; set; }
+
+        [Required]
         public string Url { get; set; }
     }
 }

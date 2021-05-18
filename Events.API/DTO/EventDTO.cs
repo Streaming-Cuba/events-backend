@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Events.API.Helpers;
 using Events.API.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,23 @@ namespace Events.API.DTO
 
         [Required]
         public string Url { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if (!Url.IsUrl())
+            {
+                ModelState.AddModelError($"{nameof(Social.Url)}", $"The url isn't valid");
+                return false;
+            }
+
+            if (!(await context.Set<Social>().AnyAsync(x => x.Id == PlatformTypeId)))
+            {
+                ModelState.AddModelError($"{nameof(Social.PlatformTypeId)}", $"The platform type with id: {PlatformTypeId} don't exists");
+                return false;
+            }
+
+            return await base.EnsureValidState(context, ModelState);
+        }
     }
 
     public class NTagCreateDTO : CreateModelDTO
@@ -68,6 +86,17 @@ namespace Events.API.DTO
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if ((await context.Set<NTag>().AnyAsync(x => x.Name == Name)))
+            {
+                ModelState.AddModelError($"{nameof(NTag.Name)}", "Already exists a tag with this name");
+                return false;
+            }
+
+            return await base.EnsureValidState(context, ModelState);
+        }
     }
 
     public class GroupItemTypeCreateDTO : CreateModelDTO
@@ -76,6 +105,17 @@ namespace Events.API.DTO
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if ((await context.Set<GroupItemType>().AnyAsync(x => x.Name == Name)))
+            {
+                ModelState.AddModelError($"{nameof(GroupItemType.Name)}", "Already exists a group item type with this name");
+                return false;
+            }
+
+            return await base.EnsureValidState(context, ModelState);
+        }
     }
 
     public class NEventStatusCreateDTO : CreateModelDTO
@@ -84,6 +124,17 @@ namespace Events.API.DTO
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if ((await context.Set<NEventStatus>().AnyAsync(x => x.Name == Name)))
+            {
+                ModelState.AddModelError($"{nameof(NEventStatus.Name)}", "Already exists a event status with this name");
+                return false;
+            }
+
+            return await base.EnsureValidState(context, ModelState);
+        }
     }
 
     public class InteractionCreateDTO : CreateModelDTO
@@ -99,6 +150,17 @@ namespace Events.API.DTO
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if ((await context.Set<NCategory>().AnyAsync(x => x.Name == Name)))
+            {
+                ModelState.AddModelError($"{nameof(NCategory.Name)}", "Already exists a category with this name");
+                return false;
+            }
+
+            return await base.EnsureValidState(context, ModelState);
+        }
     }
 
     public class SocialPlatformTypeCreateDTO : CreateModelDTO
@@ -107,6 +169,17 @@ namespace Events.API.DTO
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if ((await context.Set<SocialPlatformType>().AnyAsync(x => x.Name == Name)))
+            {
+                ModelState.AddModelError($"{nameof(SocialPlatformType.Name)}", "Already exists a social platform type with this name");
+                return false;
+            }
+
+            return await base.EnsureValidState(context, ModelState);
+        }
     }
 
     public class EventCreateDTO : CreateModelDTO
@@ -181,7 +254,7 @@ namespace Events.API.DTO
                 }
             }
 
-            return true;
+            return await base.EnsureValidState(context, ModelState);
         }
     }
 }
