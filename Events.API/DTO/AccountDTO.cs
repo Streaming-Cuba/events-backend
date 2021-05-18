@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Events.API.Models;
 
 namespace Events.API.DTO
 {
-    public class AccountCreateDTO
+    public class AccountCreateDTO : CreateModelDTO
     {
         public string Name { get; set; }
 
@@ -39,7 +40,7 @@ namespace Events.API.DTO
         public DateTime ModifiedAt { get; set; }
     }
 
-    public class RoleCreateDTO
+    public class RoleCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }

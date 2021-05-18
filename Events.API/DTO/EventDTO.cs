@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using Events.API.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.DTO
 {
-    public class GroupItemVoteCreateDTO
+    public class GroupItemVoteCreateDTO : CreateModelDTO
     {
         [Required]
         public int GroupItemId { get; set; }
@@ -13,7 +17,7 @@ namespace Events.API.DTO
         public string Type { get; set; }
     }
 
-    public class GroupCreateDTO
+    public class GroupCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -21,7 +25,7 @@ namespace Events.API.DTO
         public string Description { get; set; }
     }
 
-    public class GroupItemCreateDTO
+    public class GroupItemCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -37,7 +41,7 @@ namespace Events.API.DTO
         public int? TypeId { get; set; }
     }
 
-    public class GroupItemMetadataCreateDTO
+    public class GroupItemMetadataCreateDTO : CreateModelDTO
     {
         public string ProductorHome { get; set; }
 
@@ -50,7 +54,7 @@ namespace Events.API.DTO
         public string Url { get; set; }
     }
 
-    public class SocialCreateDTO
+    public class SocialCreateDTO : CreateModelDTO
     {
         public int? PlatformTypeId { get; set; }
 
@@ -58,7 +62,7 @@ namespace Events.API.DTO
         public string Url { get; set; }
     }
 
-    public class NTagCreateDTO
+    public class NTagCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -66,7 +70,7 @@ namespace Events.API.DTO
         public string Description { get; set; }
     }
 
-    public class GroupItemTypeCreateDTO
+    public class GroupItemTypeCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -74,7 +78,7 @@ namespace Events.API.DTO
         public string Description { get; set; }
     }
 
-    public class NEventStatusCreateDTO
+    public class NEventStatusCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -82,14 +86,14 @@ namespace Events.API.DTO
         public string Description { get; set; }
     }
 
-    public class InteractionCreateDTO
+    public class InteractionCreateDTO : CreateModelDTO
     {
         public bool? Like { get; set; }
 
         public bool? Love { get; set; }
     }
 
-    public class NCategoryCreateDTO
+    public class NCategoryCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -97,7 +101,7 @@ namespace Events.API.DTO
         public string Description { get; set; }
     }
 
-    public class SocialPlatformTypeCreateDTO
+    public class SocialPlatformTypeCreateDTO : CreateModelDTO
     {
         [Required]
         public string Name { get; set; }
@@ -105,7 +109,7 @@ namespace Events.API.DTO
         public string Description { get; set; }
     }
 
-    public class EventCreateDTO
+    public class EventCreateDTO : CreateModelDTO
     {
         [Required]
         public string Identifier { get; set; }
@@ -138,5 +142,46 @@ namespace Events.API.DTO
         public string ShortCoverPath { get; set; }
 
         public string Location { get; set; }
+
+        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                ModelState.AddModelError($"{nameof(Event.Name)}", "The name must be no null");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(Identifier))
+            {
+                ModelState.AddModelError($"{nameof(Event.Identifier)}", "The identifier must be no null");
+                return false;
+            }
+
+            if (!(await context.Set<NCategory>().AnyAsync(x => x.Id == CategoryId)))
+            {
+                ModelState.AddModelError($"{nameof(Event.CategoryId)}", $"The category with id: {CategoryId} don't exists");
+                return false;
+            }
+
+            if (!(await context.Set<NEventStatus>().AnyAsync(x => x.Id == StatusId)))
+            {
+                ModelState.AddModelError($"{nameof(Event.StatusId)}", $"The status with id: {StatusId} don't exists");
+                return false;
+            }
+
+            if (TagsId != null)
+            {
+                foreach (var tagId in TagsId)
+                {
+                    if (!(await context.Set<NTag>().AnyAsync(x => x.Id == tagId)))
+                    {
+                        ModelState.AddModelError($"{nameof(Event.Tags)}", $"The tag with id: {tagId} don't exists");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 }
