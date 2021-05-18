@@ -68,7 +68,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("{identifier}/votes")]
-        public ActionResult<IEnumerable<GroupItemVote>> VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
+        public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
         {
             // [WARNING]: Super worst performance           
             var result = _context.GroupItemVotes.Include(d => d.GroupItem)
@@ -104,7 +104,14 @@ namespace Events.API.Controllers
                 if (limit != null)
                     result = result.Take(limit.Value);
 
-                return Ok(result.ToList());
+                return Ok(result.Select(x => new
+                {
+                    id = x.Id,
+                    count = x.Count,
+                    type = x.Type,
+                    groupItemName = x.GroupItem.Name,
+                    groupItemCoverPath = x.GroupItem.CoverPath
+                }).ToList());
             }
             else
             {
