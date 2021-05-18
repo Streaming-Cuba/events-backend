@@ -62,7 +62,7 @@ namespace Events.API.DTO
         [Required]
         public string Url { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnPatch(DbContext context, ModelStateDictionary ModelState)
         {
             if (!Url.IsUrl())
             {
@@ -76,7 +76,7 @@ namespace Events.API.DTO
                 return false;
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnPatch(context, ModelState);
         }
     }
 
@@ -87,7 +87,7 @@ namespace Events.API.DTO
 
         public string Description { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnCreate(DbContext context, ModelStateDictionary ModelState)
         {
             if ((await context.Set<NTag>().AnyAsync(x => x.Name == Name)))
             {
@@ -95,7 +95,7 @@ namespace Events.API.DTO
                 return false;
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnCreate(context, ModelState);
         }
     }
 
@@ -106,7 +106,7 @@ namespace Events.API.DTO
 
         public string Description { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnCreate(DbContext context, ModelStateDictionary ModelState)
         {
             if ((await context.Set<GroupItemType>().AnyAsync(x => x.Name == Name)))
             {
@@ -114,7 +114,7 @@ namespace Events.API.DTO
                 return false;
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnCreate(context, ModelState);
         }
     }
 
@@ -125,7 +125,7 @@ namespace Events.API.DTO
 
         public string Description { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnCreate(DbContext context, ModelStateDictionary ModelState)
         {
             if ((await context.Set<NEventStatus>().AnyAsync(x => x.Name == Name)))
             {
@@ -133,7 +133,7 @@ namespace Events.API.DTO
                 return false;
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnCreate(context, ModelState);
         }
     }
 
@@ -151,7 +151,7 @@ namespace Events.API.DTO
 
         public string Description { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnCreate(DbContext context, ModelStateDictionary ModelState)
         {
             if ((await context.Set<NCategory>().AnyAsync(x => x.Name == Name)))
             {
@@ -159,7 +159,7 @@ namespace Events.API.DTO
                 return false;
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnCreate(context, ModelState);
         }
     }
 
@@ -170,7 +170,7 @@ namespace Events.API.DTO
 
         public string Description { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnCreate(DbContext context, ModelStateDictionary ModelState)
         {
             if ((await context.Set<SocialPlatformType>().AnyAsync(x => x.Name == Name)))
             {
@@ -178,7 +178,7 @@ namespace Events.API.DTO
                 return false;
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnCreate(context, ModelState);
         }
     }
 
@@ -216,7 +216,7 @@ namespace Events.API.DTO
 
         public string Location { get; set; }
 
-        public override async Task<bool> EnsureValidState(DbContext context, ModelStateDictionary ModelState)
+        public override async Task<bool> EnsureValidStateOnPatch(DbContext context, ModelStateDictionary ModelState)
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
@@ -254,7 +254,7 @@ namespace Events.API.DTO
                 }
             }
 
-            return await base.EnsureValidState(context, ModelState);
+            return await base.EnsureValidStateOnPatch(context, ModelState);
         }
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Events.API.Controllers
 {
@@ -79,6 +80,49 @@ namespace Events.API.Controllers
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchAccount([FromRoute] int id,
+                                                     [FromBody] JsonPatchDocument<AccountCreateDTO> account)
+        {
+            // validate data
+            var _account = await _context.Accounts.Include(d => d.Roles)
+                                                  .FirstOrDefaultAsync(x => x.Id == id);
+            if (_account == null)
+                return NotFound(id);
+
+            // [TODO]: Only check changed values
+            await account.ApplyTo(_account, _context, _mapper, ModelState, s =>
+            {
+                // Manual sync with Roles
+                if (s.RolesId != null)
+                {
+                    foreach (var roleId in s.RolesId)
+                    {
+                        if (!_account.Roles.Any(x => x.RoleId == roleId))
+                            _account.Roles.Add(new AccountRole
+                            {
+                                RoleId = roleId,
+                                AccountId = id
+                            });
+                    }
+                    var toRemove = _account.Roles.Where(x => !s.RolesId.Contains(x.RoleId)).ToList();
+                    foreach (var item in toRemove)
+                        _account.Roles.Remove(item);
+                }
+            });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // rehash password
+            _account.Password = _passwordHasher.HashPassword(_account.Email, _account.Password);
+            _account.ModifiedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         [Authorize(Roles = "Administrator")]

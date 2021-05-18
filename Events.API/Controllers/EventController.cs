@@ -524,7 +524,7 @@ namespace Events.API.Controllers
                             });
                     }
                     var toRemove = _event.Tags.Where(x => !s.TagsId.Contains(x.TagId)).ToList();
-                    foreach(var item in toRemove)
+                    foreach (var item in toRemove)
                         _event.Tags.Remove(item);
                 }
             });

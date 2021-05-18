@@ -21,7 +21,7 @@ namespace Events.API.Helpers
         {
             var dto = mapper.Map<TModelDTO>(model);
             patchDTO.ApplyTo(dto, modelState);
-            await dto.EnsureValidState(context, modelState);
+            await dto.EnsureValidStateOnPatch(context, modelState);
             action?.Invoke(dto);
             if (modelState.IsValid)
                 mapper.Map(dto, model);
