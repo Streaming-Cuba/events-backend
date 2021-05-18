@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Events.API.Models
 {
-    public class GroupItemVote
+    public class GroupItemVote : BaseModel
     {
         [Key]
         public int Id { get; set; }
@@ -12,5 +13,13 @@ namespace Events.API.Models
 
         [Required]
         public string Type { get; set; }
+
+        [Required]
+        [JsonIgnore]
+        public int GroupItemId { get; set; }
+
+        [Required]
+        [JsonIgnore]
+        public GroupItem GroupItem { get; set; }
     }
 }

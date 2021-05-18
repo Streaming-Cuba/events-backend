@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Events.API.Models
 {
     [Index(nameof(Name), IsUnique = true)]
-    public class NEventStatus
+    public class NEventStatus : BaseModel
     {
         [Key]
         public int Id { get; set; }

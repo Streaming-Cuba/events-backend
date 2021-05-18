@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Events.API.Data;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 
 namespace Events.API.Models
 {
-    public class Event
+    public class Event : BaseModel
     {
         [Key]
         public int Id { get; set; }
@@ -30,10 +33,16 @@ namespace Events.API.Models
         [Required]
         public NEventStatus Status { get; set; }
 
+        [Required]
+        public int StatusId { get; set; }
+
         public string Organizer { get; set; }
 
         [Required]
         public NCategory Category { get; set; }
+
+        [Required]
+        public int CategoryId { get; set; }
 
         public ICollection<EventTag> Tags { get; set; }
 
@@ -42,7 +51,7 @@ namespace Events.API.Models
         public string CoverPath { get; set; }
 
         public string ShortCoverPath { get; set; }
-        
+
         public ICollection<Interaction> Interactions { get; set; }
 
         public ICollection<Group> Groups { get; set; }
@@ -51,7 +60,6 @@ namespace Events.API.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public DateTime ModifiedAt { get; set; }
+        public DateTime ModifiedAt { get; set; }        
     }
-
 }

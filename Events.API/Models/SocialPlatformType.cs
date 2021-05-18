@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Events.API.Models
 {
     [Index(nameof(Name), IsUnique = true)]
-    public class SocialPlatformType
+    public class SocialPlatformType : BaseModel
     {
         [Key]
         public int Id { get; set; }

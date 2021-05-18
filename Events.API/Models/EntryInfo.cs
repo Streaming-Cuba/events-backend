@@ -15,5 +15,7 @@ namespace Events.API.Models
         public DateTime ModificationTime { get; set; }
 
         public bool IsDir { get; set; }
+
+        public long Size { get; set; }
     }
 }

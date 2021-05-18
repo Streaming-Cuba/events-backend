@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Events.API.Models
 {
     [Index(nameof(Email), IsUnique = true)]
-    public class Subscriber
+    public class Subscriber : BaseModel
     {
         [Key]
         public int Id { get; set; }

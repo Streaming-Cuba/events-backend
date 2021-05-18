@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Events.API.Models;
 
 namespace Events.API.DTO
 {
-    public class SubscriberCreateDTO
+    public class SubscriberCreateDTO : BaseModel
     {
         public string Name { get; set; }
 

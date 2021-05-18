@@ -34,7 +34,7 @@ namespace Events.API.Controllers
         public async Task<ActionResult<IEnumerable<Event>>> ListEvents() => Ok(await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
-        public async Task<ActionResult<Event>> EventByIdentifier(string identifier)
+        public async Task<ActionResult<Event>> EventByIdentifier([FromRoute] string identifier)
         {
             var item = await _context.Events
                     .Include(d => d.Groups)
@@ -53,6 +53,7 @@ namespace Events.API.Controllers
                     .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
                     .ThenInclude(p => p.Metadata)
+                    .AsSplitQuery() // perform in multiples queries
 
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
 
@@ -62,7 +63,61 @@ namespace Events.API.Controllers
             // bad performance
             if (item.Groups != null)
                 item.Groups = item.Groups.OrderBy(x => x.Order).ToList();
+
             return Ok(item);
+        }
+
+        [HttpGet("{identifier}/votes")]
+        public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
+        {
+            // [WARNING]: Super worst performance           
+            var result = _context.GroupItemVotes.Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Group)
+                                                .ThenInclude(p => p.Event)
+
+                                                .Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Group)
+                                                .ThenInclude(p => p.GroupParent)
+                                                .ThenInclude(p => p.Event)
+
+                                                .Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Group)
+                                                .ThenInclude(p => p.GroupParent)
+
+                                                .AsSplitQuery() // perform in multiples queries                                                
+                                                .AsEnumerable()
+                                                .Where(x =>
+                                                {
+                                                    Group p = x.GroupItem.Group;
+                                                    while (p.EventId == null)
+                                                        p = p.GroupParent;
+                                                    return p.Event.Identifier == identifier;
+                                                })
+                                                .OrderByDescending(x => x.Count)
+                                                .AsEnumerable();
+
+            if (result != null)
+            {
+                if (!string.IsNullOrWhiteSpace(type))
+                    result = result.Where(x => x.Type == type);
+
+                if (limit != null)
+                    result = result.Take(limit.Value);
+
+                return Ok(result.Select(x => new
+                {
+                    id = x.Id,
+                    count = x.Count,
+                    type = x.Type,
+                    groupItemName = x.GroupItem.Name,
+                    groupItemCoverPath = x.GroupItem.CoverPath
+                }).ToList());
+            }
+            else
+            {
+                // TODO: Replace
+                return Ok(new GroupItemVote[0]);
+            }
         }
         #endregion
 
@@ -74,12 +129,15 @@ namespace Events.API.Controllers
             // validate data
             var _event = _mapper.Map<Event>(@event);
 
-            _event.Category = await _context.Categories.FindAsync(@event.CategoryId);
-            if (_event.Category == null)
-                return BadRequest(new
-                {
-                    error = $"The category with id: {@event.CategoryId} don't exists"
-                });
+            if (@event.CategoryId != null)
+            {
+                _event.Category = await _context.Categories.FindAsync(@event.CategoryId);
+                if (_event.Category == null)
+                    return BadRequest(new
+                    {
+                        error = $"The category with id: {@event.CategoryId} don't exists"
+                    });
+            }
 
             _event.Status = await _context.EventStatuses.FindAsync(@event.StatusId);
             if (_event.Status == null)
@@ -88,19 +146,22 @@ namespace Events.API.Controllers
                     error = $"The status with id: {@event.StatusId} don't exists"
                 });
 
-            foreach (var tagId in @event.TagsId)
+            if (@event.TagsId != null)
             {
-                var tag = await _context.Tags.FindAsync(tagId);
-                if (tag == null)
-                    return BadRequest(new
-                    {
-                        error = $"The tag with id: {tagId} don't exists"
-                    });
-                _event.Tags.Add(new EventTag
+                foreach (var tagId in @event.TagsId)
                 {
-                    Tag = tag,
-                    Event = _event
-                });
+                    var tag = await _context.Tags.FindAsync(tagId);
+                    if (tag == null)
+                        return BadRequest(new
+                        {
+                            error = $"The tag with id: {tagId} don't exists"
+                        });
+                    _event.Tags.Add(new EventTag
+                    {
+                        Tag = tag,
+                        Event = _event
+                    });
+                }
             }
 
             _event.CreatedAt = DateTime.UtcNow;
@@ -149,7 +210,8 @@ namespace Events.API.Controllers
         [HttpPost("vote")]
         public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
         {
-            var groupItem = await _context.GroupItems.Include(d => d.Votes).FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);
+            var groupItem = await _context.GroupItems.Include(d => d.Votes)
+                                                     .FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);
             if (groupItem == null)
                 return BadRequest(new
                 {
@@ -441,6 +503,48 @@ namespace Events.API.Controllers
 
         #region Patch models
         [Authorize(Roles = "Administrator")]
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchEvent([FromRoute] int id,
+                                                   [FromBody] JsonPatchDocument<EventCreateDTO> @event)
+        {
+            // validate data
+            var _event = await _context.Events.Include(d => d.Tags)
+                                              .Include(d => d.Category)
+                                              .Include(d => d.Status)
+                                              .FirstOrDefaultAsync(x => x.Id == id);
+            if (_event == null)
+                return NotFound(id);
+
+            // [TODO]: Only check changed values
+            await @event.ApplyTo(_event, _context, _mapper, ModelState, s =>
+            {
+                // Manual sync with EventsTags
+                if (s.TagsId != null)
+                {
+                    foreach (var tagId in s.TagsId)
+                    {
+                        if (!_event.Tags.Any(x => x.TagId == tagId))
+                            _event.Tags.Add(new EventTag
+                            {
+                                TagId = tagId,
+                                EventId = id
+                            });
+                    }
+                    var toRemove = _event.Tags.Where(x => !s.TagsId.Contains(x.TagId)).ToList();
+                    foreach (var item in toRemove)
+                        _event.Tags.Remove(item);
+                }
+            });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _event.ModifiedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [Authorize(Roles = "Administrator")]
         [HttpPatch("group/item-type/{id}")]
         public async Task<ActionResult> PatchGroupItemType([FromRoute] int id,
                                                            [FromBody] JsonPatchDocument<GroupItemTypeCreateDTO> groupItemType)
@@ -449,12 +553,7 @@ namespace Events.API.Controllers
             if (_groupItemType == null)
                 return NotFound(id);
 
-            groupItemType.ApplyTo(_groupItemType, _mapper, ModelState, async s =>
-            {
-                if ((await _context.GroupItemTypes.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("GroupItemType.Name", "Already exists a group item type status with this name");
-            });
+            await groupItemType.ApplyTo(_groupItemType, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -470,14 +569,7 @@ namespace Events.API.Controllers
             if (_social == null)
                 return NotFound(id);
 
-            social.ApplyTo(_social, _mapper, ModelState, async x =>
-            {
-                var type = await _context.SocialPlatformTypes.FindAsync(x.PlatformTypeId);
-                if (type == null)
-                    ModelState.AddModelError("Social.PlatformTypeId", $"The platform type with id: {x.PlatformTypeId} don't exists");
-                else
-                    _social.PlatformType = type;
-            });
+            await social.ApplyTo(_social, _context, _mapper, ModelState);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -495,19 +587,14 @@ namespace Events.API.Controllers
             if (_eventStatus == null)
                 return NotFound(id);
 
-            eventStatus.ApplyTo(_eventStatus, _mapper, ModelState, async s =>
-            {
-                if ((await _context.EventStatuses.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("EventStatus.Name", "Already exists a event status with this name");
-            });
+            await eventStatus.ApplyTo(_eventStatus, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
             return Ok();
         }
 
-        
+
         [Authorize(Roles = "Administrator")]
         [HttpPatch("interaction/{id}")]
         public async Task<ActionResult> PatchInteraction([FromRoute] int id,
@@ -517,7 +604,7 @@ namespace Events.API.Controllers
             if (_interaction == null)
                 return NotFound(id);
 
-            interaction.ApplyTo(_interaction, _mapper, ModelState);
+            await interaction.ApplyTo(_interaction, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -529,16 +616,11 @@ namespace Events.API.Controllers
         public async Task<ActionResult> PatchTag([FromRoute] int id,
                                                  [FromBody] JsonPatchDocument<NTagCreateDTO> tag)
         {
-             var _tag = await _context.Tags.FindAsync(id);
+            var _tag = await _context.Tags.FindAsync(id);
             if (_tag == null)
                 return NotFound(id);
 
-            tag.ApplyTo(_tag, _mapper, ModelState, async s =>
-            {
-                if ((await _context.Tags.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("Tag.Name", "Already exists a tag with this name");
-            });
+            await tag.ApplyTo(_tag, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
@@ -554,33 +636,23 @@ namespace Events.API.Controllers
             if (_category == null)
                 return NotFound(id);
 
-            category.ApplyTo(_category, _mapper, ModelState, async s =>
-            {
-                if ((await _context.Categories.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("Category.Name", "Already exists a category with this name");
-            });
+            await category.ApplyTo(_category, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();
             return Ok();
         }
-        
+
         [Authorize(Roles = "Administrator")]
         [HttpPatch("social/platform-type/{id}")]
         public async Task<ActionResult> PatchSocialPlatformType([FromRoute] int id,
                                                                 [FromBody] JsonPatchDocument<SocialPlatformTypeCreateDTO> socialPlatformType)
         {
-             var _socialPlatformType = await _context.Tags.FindAsync(id);
+            var _socialPlatformType = await _context.Tags.FindAsync(id);
             if (_socialPlatformType == null)
                 return NotFound(id);
 
-            socialPlatformType.ApplyTo(_socialPlatformType, _mapper, ModelState, async s =>
-            {
-                if ((await _context.SocialPlatformTypes.FirstOrDefaultAsync(x => x.Name == s.Name))
-                != null)
-                    ModelState.AddModelError("Tag.Name", "Already exists a social platfrom type with this name");
-            });
+            await socialPlatformType.ApplyTo(_socialPlatformType, _context, _mapper, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             await _context.SaveChangesAsync();

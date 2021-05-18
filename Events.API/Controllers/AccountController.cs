@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Events.API.Controllers
 {
@@ -75,25 +76,63 @@ namespace Events.API.Controllers
                     Role = role
                 });
             }
-            // _account.Role = role;
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
         }
 
-        [HttpGet]
-        public async Task<ActionResult<AccountReadDTO>> GetAccountByEmail([FromQuery][Required] string email)
+        [Authorize(Roles = "Administrator")]
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchAccount([FromRoute] int id,
+                                                     [FromBody] JsonPatchDocument<AccountCreateDTO> account)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                return ValidationProblem();
+            // validate data
+            var _account = await _context.Accounts.Include(d => d.Roles)
+                                                  .FirstOrDefaultAsync(x => x.Id == id);
+            if (_account == null)
+                return NotFound(id);
 
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
-            if (account != null)
-                return _mapper.Map<AccountReadDTO>(account);
-            return NotFound(email);
+            // [TODO]: Only check changed values
+            await account.ApplyTo(_account, _context, _mapper, ModelState, s =>
+            {
+                // Manual sync with Roles
+                if (s.RolesId != null)
+                {
+                    foreach (var roleId in s.RolesId)
+                    {
+                        if (!_account.Roles.Any(x => x.RoleId == roleId))
+                            _account.Roles.Add(new AccountRole
+                            {
+                                RoleId = roleId,
+                                AccountId = id
+                            });
+                    }
+                    var toRemove = _account.Roles.Where(x => !s.RolesId.Contains(x.RoleId)).ToList();
+                    foreach (var item in toRemove)
+                        _account.Roles.Remove(item);
+                }
+            });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // rehash password
+            _account.Password = _passwordHasher.HashPassword(_account.Email, _account.Password);
+            _account.ModifiedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public ActionResult<IEnumerable<AccountReadDTO>> GetAccounts([FromQuery] string email)
+            => Ok(email != null ? _context.Accounts.Include(d => d.Roles).Where(x => x.Email == email)?
+                                   .Select(x => _mapper.Map<AccountReadDTO>(x)) :
+                                   _context.Accounts.Include(d => d.Roles).Select(x => _mapper.Map<AccountReadDTO>(x)));
+
+        [Authorize(Roles = "Administrator")]
         [HttpGet("{id}")]
         public async Task<ActionResult<AccountReadDTO>> GetAccountById([FromRoute] int id)
         {
@@ -102,7 +141,6 @@ namespace Events.API.Controllers
                 return _mapper.Map<AccountReadDTO>(account);
             return NotFound(id);
         }
-
 
         [HttpPost("role")]
         [Authorize(Roles = "Administrator")]

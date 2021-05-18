@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Events.API.Models
 {
     [Index(nameof(Description), IsUnique = true)]
-    public class Role
+    public class Role : BaseModel
     {
         [Key]
         public int Id { get; set; }
