@@ -114,7 +114,8 @@ namespace Events.API.Controllers
                     type = x.Type,
                     groupItemName = x.GroupItem.Name,
                     groupItemCoverPath = x.GroupItem.CoverPath,
-                    interpreter = x.GroupItem.Metadata?.Interpreter
+                    interpreter = x.GroupItem.Metadata?.Interpreter,
+                    productor = x.GroupItem?.Metadata.Productor
                 }).ToList());
             }
             else
