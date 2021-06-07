@@ -84,6 +84,9 @@ namespace Events.API.Controllers
                                                 .ThenInclude(p => p.Group)
                                                 .ThenInclude(p => p.GroupParent)
 
+                                                .Include(d => d.GroupItem)
+                                                .ThenInclude(p => p.Metadata)
+
                                                 .AsSplitQuery() // perform in multiples queries                                                
                                                 .AsEnumerable()
                                                 .Where(x =>
@@ -110,7 +113,9 @@ namespace Events.API.Controllers
                     count = x.Count,
                     type = x.Type,
                     groupItemName = x.GroupItem.Name,
-                    groupItemCoverPath = x.GroupItem.CoverPath
+                    groupItemCoverPath = x.GroupItem.CoverPath,
+                    interpreter = x.GroupItem.Metadata?.Interpreter,
+                    productor = x.GroupItem.Metadata?.Productor
                 }).ToList());
             }
             else
