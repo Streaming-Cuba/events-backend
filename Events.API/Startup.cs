@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
+using Events.API.Services;
 
 namespace Events.API
 {
@@ -52,7 +53,7 @@ namespace Events.API
 
             // Services
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+            services.AddHttpClient<FacebookService>();
 
             // Verify
             // UNSAFE
@@ -68,7 +69,7 @@ namespace Events.API
 
             services.AddControllers()
                     .AddNewtonsoftJson();
-
+                    
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
