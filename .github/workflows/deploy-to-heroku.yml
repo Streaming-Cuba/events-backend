@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  update-database:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -45,8 +45,11 @@ jobs:
           dotnet ef database update --context AccountContext --project ./Events.API  
           dotnet ef database update --context SubscriberContext --project ./Events.API 
 
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v2
-      
+
       - name: Replace secrets
         run: |
          sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
