@@ -39,7 +39,7 @@ namespace Events.API.Controllers
                 date = x["created_time"],
                 reach = await _service.GetVideoTotalImpressions(x["id"] as string),
                 views = await _service.GetVideoTotalViews(x["id"] as string),
-                length = (double)x["length"]
+                length = x["length"]
             }));
 
             var rankingByCountry = new Dictionary<string, long>();
