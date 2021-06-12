@@ -80,7 +80,7 @@ namespace Events.API.Controllers
                 total_countries = rankingByCountry.Count,
                 total_regions = rankingByRegion.Count,
                 videos = videosInfo,
-                rankingByRegion = rankingByCountry,
+                rankingByRegion = rankingByRegion,
                 rankingByCountry = rankingByCountry
             });
         }
