@@ -28,6 +28,19 @@ namespace Events.API.Controllers
             _service = service;
         }
 
+        private Dictionary<K, long> AggregateDictionaries<K> (Dictionary<K, long> a, Dictionary<K, long> b)
+        {
+            var r = new Dictionary<K, long>(a);
+            foreach (var pair in b)
+            {
+                if (a.ContainsKey(pair.Key))
+                    a[pair.Key] += pair.Value;
+                else
+                    a.Add(pair.Key, pair.Value);
+            }
+            return r;
+        }
+
         [HttpGet("videos-info")]
         public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
         {
@@ -43,34 +56,13 @@ namespace Events.API.Controllers
             }));
 
             var rankingByCountry = new Dictionary<string, long>();
+            
             (await Task.WhenAll(videos.AsParallel().Select(async x
-                => await _service.GetViewsByCountry(x["id"] as string)))).Aggregate(rankingByCountry, (a, b) =>
-                {
-                    var r = new Dictionary<string, long>(a);
-                    foreach (var pair in b)
-                    {
-                        if (a.ContainsKey(pair.Key))
-                            a[pair.Key] += pair.Value;
-                        else
-                            a.Add(pair.Key, pair.Value);
-                    }
-                    return r;
-                });
+                => await _service.GetViewsByCountry(x["id"] as string)))).Aggregate(rankingByCountry, AggregateDictionaries);
 
             var rankingByRegion = new Dictionary<string, long>();
             (await Task.WhenAll(videos.AsParallel().Select(async x
-                => await _service.GetViewsByRegion(x["id"] as string)))).Aggregate(rankingByRegion, (a, b) =>
-                {
-                    var r = new Dictionary<string, long>(a);
-                    foreach (var pair in b)
-                    {
-                        if (a.ContainsKey(pair.Key))
-                            a[pair.Key] += pair.Value;
-                        else
-                            a.Add(pair.Key, pair.Value);
-                    }
-                    return r;
-                });
+                => await _service.GetViewsByRegion(x["id"] as string)))).Aggregate(rankingByRegion, AggregateDictionaries);
 
             return Ok(new
             {
