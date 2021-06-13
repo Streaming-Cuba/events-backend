@@ -23,6 +23,8 @@ jobs:
          sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
          sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
          sed -i 's/MEDIA_PATH/${{ secrets.MEDIA_PATH }}/g' Events.API/appsettings.json
+         sed -i 's/FACEBOOK_TOKEN/${{ secrets.FACEBOOK_TOKEN }}/g' Events.API/appsettings.json
+         sed -i 's/FACEBOOK_PAGE_IDENTIFIER/${{ secrets.FACEBOOK_PAGE_IDENTIFIER }}/g' Events.API/appsettings.json
         
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
