@@ -49,7 +49,7 @@ namespace Events.API.Controllers
 
             var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x => new
             {
-                title = x["title"],
+                title = (x.ContainsKey("title") ? x["title"] : null),
                 date = x["created_time"],
                 reach = await _service.GetVideoTotalImpressions(x["id"] as string),
                 views = await _service.GetVideoTotalViews(x["id"] as string),
