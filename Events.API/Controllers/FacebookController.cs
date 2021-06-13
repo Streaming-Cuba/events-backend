@@ -42,6 +42,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("videos-info")]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
         {
             var videos = await _service.GetVideos(since, until, "title", "length");
@@ -55,8 +56,7 @@ namespace Events.API.Controllers
                 length = x["length"]
             }));
 
-            var rankingByCountry = new Dictionary<string, long>();
-            
+            var rankingByCountry = new Dictionary<string, long>();            
             (await Task.WhenAll(videos.AsParallel().Select(async x
                 => await _service.GetViewsByCountry(x["id"] as string)))).Aggregate(rankingByCountry, AggregateDictionaries);
 
