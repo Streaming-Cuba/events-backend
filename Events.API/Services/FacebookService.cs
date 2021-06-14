@@ -49,7 +49,7 @@ namespace Events.API.Services
                 tokens.AddRange(r["data"].AsEnumerable());
 
                 // advance cursor
-                if (!r.ContainsKey("paging") || !r["paging"].Contains("next"))
+                if (!r.ContainsKey("paging") || r["paging"]["next"] == null)
                     break;
 
                 var url = r["paging"]["next"].ToString();
