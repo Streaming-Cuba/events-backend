@@ -105,6 +105,6 @@ namespace Events.API.Services
                 .First()["value"]
                 .ToObject<Dictionary<string, long>>()
                 .Where(x => x.Value > 0)
-                .ToDictionary(k => k.Key, v => v.Value / 1000 / 60);
+                .ToDictionary(k => k.Key, v => v.Value);
     }
 }
