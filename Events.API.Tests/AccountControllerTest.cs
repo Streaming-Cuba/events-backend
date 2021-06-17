@@ -46,7 +46,7 @@ namespace Events.API.Tests
             // Asserts
             Assert.IsType<CreatedAtActionResult>(result);
 
-            Assert.Equal(context.Roles.Count(), 1);
+            Assert.Equal(1, context.Roles.Count());
             var role = await context.Roles.FirstOrDefaultAsync();
 
             Assert.NotNull(role);
@@ -100,7 +100,7 @@ namespace Events.API.Tests
             // Asserts
             Assert.IsType<CreatedAtActionResult>(result);
 
-            Assert.Equal(context.Accounts.Count(), 1);
+            Assert.Equal(1, context.Accounts.Count());
             var account = await context.Accounts.Include(d => d.Roles).FirstOrDefaultAsync();
 
             Assert.NotNull(account);
