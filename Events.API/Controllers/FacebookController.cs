@@ -28,7 +28,7 @@ namespace Events.API.Controllers
             _service = service;
         }
 
-        private Dictionary<K, long> AggregateDictionaries<K> (Dictionary<K, long> a, Dictionary<K, long> b)
+        private void AggregateDictionaries<K>(Dictionary<K, long> a, Dictionary<K, long> b)
         {
             var r = new Dictionary<K, long>(a);
             foreach (var pair in b)
@@ -38,7 +38,6 @@ namespace Events.API.Controllers
                 else
                     a.Add(pair.Key, pair.Value);
             }
-            return r;
         }
 
         [HttpGet("videos-info")]
@@ -46,24 +45,34 @@ namespace Events.API.Controllers
         public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
         {
             var videos = await _service.GetVideos(since, until, "title", "length");
-
-            var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x => new
-            {
-                title = x["title"],
-                date = x["created_time"],
-                reach = await _service.GetVideoTotalImpressions(x["id"] as string),
-                views = await _service.GetVideoTotalViews(x["id"] as string),
-                length = x["length"]
-            }));
-
-            var rankingByCountry = new Dictionary<string, long>();            
-            (await Task.WhenAll(videos.AsParallel().Select(async x
-                => await _service.GetViewsByCountry(x["id"] as string)))).Aggregate(rankingByCountry, AggregateDictionaries);
-
+            var rankingByCountry = new Dictionary<string, long>();
             var rankingByRegion = new Dictionary<string, long>();
-            (await Task.WhenAll(videos.AsParallel().Select(async x
-                => await _service.GetViewsByRegion(x["id"] as string)))).Aggregate(rankingByRegion, AggregateDictionaries);
+            var demographic = new Dictionary<string, long>();
 
+            var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x =>
+            {
+                var id = x["id"] as string;
+                var countries = await _service.GetViewsByCountry(id);
+                var regions = await _service.GetViewsByRegion(id);
+                var demo = await _service.GetViewsByGenderAge(id);
+
+                AggregateDictionaries(rankingByCountry, countries);
+                AggregateDictionaries(rankingByRegion, regions);
+                AggregateDictionaries(demographic, demo);
+
+                return new
+                {
+                    title = (x.ContainsKey("title") ? x["title"] : null),
+                    date = x["created_time"],
+                    reach = await _service.GetVideoTotalImpressions(id),
+                    views = await _service.GetVideoTotalViews(id),
+                    length = x["length"],
+                    rankingByRegion = regions,
+                    rankingByCountry = countries,
+                    demographic = demo
+                };
+            }));
+            
             return Ok(new
             {
                 videos_count = videosInfo.Length,
@@ -73,7 +82,8 @@ namespace Events.API.Controllers
                 total_regions = rankingByRegion.Count,
                 videos = videosInfo,
                 rankingByRegion = rankingByRegion,
-                rankingByCountry = rankingByCountry
+                rankingByCountry = rankingByCountry,
+                demographic = demographic
             });
         }
     }
