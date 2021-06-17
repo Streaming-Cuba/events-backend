@@ -47,24 +47,29 @@ namespace Events.API.Controllers
             var videos = await _service.GetVideos(since, until, "title", "length");
             var rankingByCountry = new Dictionary<string, long>();
             var rankingByRegion = new Dictionary<string, long>();
+            var demographic = new Dictionary<string, long>();
 
             var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x =>
             {
-                var countries = await _service.GetViewsByCountry(x["id"] as string);
-                var regions = await _service.GetViewsByRegion(x["id"] as string);
+                var id = x["id"] as string;
+                var countries = await _service.GetViewsByCountry(id);
+                var regions = await _service.GetViewsByRegion(id);
+                var demo = await _service.GetViewsByGenderAge(id);
 
                 AggregateDictionaries(rankingByCountry, countries);
                 AggregateDictionaries(rankingByRegion, regions);
+                AggregateDictionaries(demographic, demo);
 
                 return new
                 {
                     title = (x.ContainsKey("title") ? x["title"] : null),
                     date = x["created_time"],
-                    reach = await _service.GetVideoTotalImpressions(x["id"] as string),
-                    views = await _service.GetVideoTotalViews(x["id"] as string),
+                    reach = await _service.GetVideoTotalImpressions(id),
+                    views = await _service.GetVideoTotalViews(id),
                     length = x["length"],
                     rankingByRegion = regions,
-                    rankingByCountry = countries
+                    rankingByCountry = countries,
+                    demographic = demo
                 };
             }));
             
@@ -77,7 +82,8 @@ namespace Events.API.Controllers
                 total_regions = rankingByRegion.Count,
                 videos = videosInfo,
                 rankingByRegion = rankingByRegion,
-                rankingByCountry = rankingByCountry
+                rankingByCountry = rankingByCountry,
+                demographic = demographic
             });
         }
     }

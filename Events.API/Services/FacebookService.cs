@@ -72,10 +72,24 @@ namespace Events.API.Services
         }
 
         public async Task<long> GetVideoTotalViews(string videoId) =>
-            (await Request($"{videoId}/video_insights/total_video_views?access_token={_accessToken}")).First()["values"].First()["value"].Value<long>();
+            (await Request($"{videoId}/video_insights/total_video_views?access_token={_accessToken}"))
+                .First()["values"]
+                .First()["value"]
+                .Value<long>();
 
         public async Task<long> GetVideoTotalImpressions(string videoId) =>
-            (await Request($"{videoId}/video_insights/total_video_impressions?access_token={_accessToken}")).First()["values"].First()["value"].Value<long>();
+            (await Request($"{videoId}/video_insights/total_video_impressions?access_token={_accessToken}"))
+                .First()["values"]
+                .First()["value"]
+                .Value<long>();
+
+        public async Task<Dictionary<string, long>> GetViewsByGenderAge(string videoId) =>
+            (await Request($"{videoId}/video_insights/total_video_view_time_by_age_bucket_and_gender?access_token={_accessToken}"))
+                .First()["values"]
+                .First()["value"]
+                .ToObject<Dictionary<string, long>>()
+                .Where(x => !x.Key.StartsWith("U") && x.Value > 0)
+                .ToDictionary(k => k.Key, v => v.Value);
 
         public async Task<Dictionary<string, long>> GetViewsByCountry(string videoId) =>
             (await Request($"{videoId}/video_insights/total_video_view_time_by_country_id?access_token={_accessToken}"))
