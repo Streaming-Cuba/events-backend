@@ -57,15 +57,15 @@ namespace Events.API
 
             // Verify
             // UNSAFE
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyHeader();
-                    policy.AllowAnyMethod();
-                    policy.AllowAnyOrigin();
-                });
-            });
+            // services.AddCors(options =>
+            // {
+            //     options.AddDefaultPolicy(policy =>
+            //     {
+            //         policy.AllowAnyHeader();
+            //         policy.AllowAnyMethod();
+            //         policy.AllowAnyOrigin();
+            //     });
+            // });
 
             services.AddControllers()
                     .AddNewtonsoftJson();
@@ -119,7 +119,11 @@ namespace Events.API
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors(x => {
+                x.AllowAnyHeader();
+                x.AllowAnyMethod();
+                x.AllowAnyOrigin();
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -72,7 +72,7 @@ namespace Events.API.Controllers
         private string GenerateJSONWebToken(Account userInfo)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
             var claims = userInfo.Roles
                 .Select(x => new Claim(ClaimTypes.Role, x.Role.Name))

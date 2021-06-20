@@ -83,7 +83,7 @@ namespace Events.API.DTO
 
         public string AvatarPath { get; set; }
 
-        public ICollection<int> RolesId { get; set; }
+        public ICollection<string> Roles { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
