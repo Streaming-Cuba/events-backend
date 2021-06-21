@@ -23,7 +23,7 @@ namespace Events.API.Controllers
             _basePath = configuration["Media:Path"];
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("folder/{*path}")]
         public IActionResult CreateFolder([FromRoute] string path)
         {
@@ -43,7 +43,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpDelete("folder/{*path}")]
         public IActionResult DeleteFolder([FromRoute] string path)
         {
@@ -64,7 +64,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("file/{*path}")]
         public async Task<IActionResult> CreateFile([FromRoute] string path, [FromQuery] bool overwrite, [Required] IFormFile file)
         {
@@ -104,7 +104,7 @@ namespace Events.API.Controllers
         public IActionResult DownloadFile([FromRoute] string path)
                 => RedirectPermanent($"https://media.streamingcuba.com/{path}");
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpGet("folder/{*path}")]
         public ActionResult<List<EntryInfo>> EnumerateEntries([FromRoute] string path)
         {

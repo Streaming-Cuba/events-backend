@@ -127,7 +127,7 @@ namespace Events.API.Controllers
         #endregion
 
         #region Create models and push to database
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<ActionResult> CreateEvent([FromBody] EventCreateDTO @event)
         {
@@ -181,7 +181,7 @@ namespace Events.API.Controllers
 
         // }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("group/item/{groupId}")]
         public async Task<ActionResult> CreateGroupItem([FromRoute] int groupId,
                                                         [FromBody] GroupItemCreateDTO groupItem)
@@ -248,7 +248,7 @@ namespace Events.API.Controllers
             });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("group")]
         public async Task<ActionResult> CreateGroup([FromQuery] int? eventId,
                                                     [FromQuery] int? groupParentId,
@@ -287,7 +287,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateGroup), new { id = _group.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("tag")]
         public async Task<ActionResult> CreateTag([FromBody] NTagCreateDTO tag)
         {
@@ -304,7 +304,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateTag), new { id = _tag.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("social")]
         public async Task<ActionResult> CreateSocial([FromBody] SocialCreateDTO social)
         {
@@ -323,7 +323,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), new { id = _social.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("social/platform-type")]
         public async Task<ActionResult> CreateSocialPlatformType([FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
         {
@@ -340,7 +340,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocialPlatformType), new { id = _socialPlatformType.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("category")]
         public async Task<ActionResult> CreateCategory([FromBody] NCategoryCreateDTO category)
         {
@@ -357,7 +357,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateSocial), new { id = _category.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("event-status")]
         public async Task<ActionResult> CreateEventStatus([FromBody] NEventStatusCreateDTO eventStatus)
         {
@@ -374,7 +374,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateEventStatus), new { id = _eventStatus.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost("group/item-type")]
         public async Task<ActionResult> CreateGroupItemType([FromBody] GroupItemTypeCreateDTO groupItemType)
         {
@@ -393,7 +393,7 @@ namespace Events.API.Controllers
         #endregion
 
         #region Modify models 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("social/{id}")]
         public async Task<ActionResult> EditSocial([FromRoute] int id,
                                                    [FromBody] SocialCreateDTO social)
@@ -418,7 +418,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("group/item-type/{id}")]
         public async Task<ActionResult> EditGroupItemType([FromRoute] int id,
                                                                          [FromBody] GroupItemTypeCreateDTO groupItemType)
@@ -432,7 +432,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("event-status/{id}")]
         public async Task<ActionResult> EditEventStatus([FromRoute] int id,
                                                         [FromBody] NEventStatusCreateDTO eventStatus)
@@ -446,7 +446,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("interaction/{id}")]
         public async Task<ActionResult> EditInteraction([FromRoute] int id,
                                                         [FromBody] InteractionCreateDTO interaction)
@@ -460,7 +460,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("tag/{id}")]
         public async Task<ActionResult> EditTag([FromRoute] int id,
                                                 [FromBody] NTagCreateDTO tag)
@@ -474,7 +474,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("category/{id}")]
         public async Task<ActionResult> EditCategory([FromRoute] int id,
                                                      [FromBody] NCategoryCreateDTO category)
@@ -488,7 +488,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPut("social/platform-type/{id}")]
         public async Task<ActionResult> EditSocialPlatformType([FromRoute] int id,
                                                                [FromBody] SocialPlatformTypeCreateDTO socialPlatformType)
@@ -507,7 +507,7 @@ namespace Events.API.Controllers
         #endregion
 
         #region Patch models
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("{id}")]
         public async Task<ActionResult> PatchEvent([FromRoute] int id,
                                                    [FromBody] JsonPatchDocument<EventCreateDTO> @event)
@@ -549,7 +549,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("group/item-type/{id}")]
         public async Task<ActionResult> PatchGroupItemType([FromRoute] int id,
                                                            [FromBody] JsonPatchDocument<GroupItemTypeCreateDTO> groupItemType)
@@ -565,7 +565,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("social/{id}")]
         public async Task<ActionResult> PatchSocial([FromRoute] int id,
                                                     [FromBody] JsonPatchDocument<SocialCreateDTO> social)
@@ -583,7 +583,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("event-status/{id}")]
         public async Task<ActionResult> PatchEventStatus([FromRoute] int id,
                                                          [FromBody] JsonPatchDocument<NEventStatusCreateDTO> eventStatus)
@@ -600,7 +600,7 @@ namespace Events.API.Controllers
         }
 
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("interaction/{id}")]
         public async Task<ActionResult> PatchInteraction([FromRoute] int id,
                                                          [FromBody] JsonPatchDocument<InteractionCreateDTO> interaction)
@@ -616,7 +616,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("tag/{id}")]
         public async Task<ActionResult> PatchTag([FromRoute] int id,
                                                  [FromBody] JsonPatchDocument<NTagCreateDTO> tag)
@@ -632,7 +632,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("category/{id}")]
         public async Task<ActionResult> PatchCategory([FromRoute] int id,
                                                       [FromBody] JsonPatchDocument<NCategoryCreateDTO> category)
@@ -648,7 +648,7 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("social/platform-type/{id}")]
         public async Task<ActionResult> PatchSocialPlatformType([FromRoute] int id,
                                                                 [FromBody] JsonPatchDocument<SocialPlatformTypeCreateDTO> socialPlatformType)
