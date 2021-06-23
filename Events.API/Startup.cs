@@ -54,6 +54,7 @@ namespace Events.API
             // Services
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddHttpClient<FacebookService>();
+            services.AddTransient<IEmailSender>();
 
             // Verify
             // UNSAFE
