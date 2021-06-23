@@ -128,9 +128,13 @@ namespace Events.API.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpGet]
         public ActionResult<IEnumerable<AccountReadDTO>> GetAccounts([FromQuery] string email)
-            => Ok(email != null ? _context.Accounts.Include(d => d.Roles).Where(x => x.Email == email)?
-                                   .Select(x => _mapper.Map<AccountReadDTO>(x)) :
-                                   _context.Accounts.Include(d => d.Roles).Select(x => _mapper.Map<AccountReadDTO>(x)));
+            => Ok(email != null ? _context.Accounts.Include(d => d.Roles)
+                                                   .ThenInclude(d => d.Role)
+                                                   .Where(x => x.Email == email)?
+                                                   .Select(x => _mapper.Map<AccountReadDTO>(x)) 
+                                : _context.Accounts.Include(d => d.Roles)
+                                                   .ThenInclude(d => d.Role)
+                                                   .Select(x => _mapper.Map<AccountReadDTO>(x)));
 
         [Authorize(Roles = "Administrador")]
         [HttpGet("{id}")]
