@@ -50,7 +50,7 @@ namespace Events.API.Controllers
                 return BadRequest();
 
             IActionResult response = Unauthorized();
-            var user = await AuthenticateUser(login);)
+            var user = await AuthenticateUser(login);
 
             if (user != null)
             {
