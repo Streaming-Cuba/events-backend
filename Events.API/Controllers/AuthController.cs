@@ -50,10 +50,15 @@ namespace Events.API.Controllers
                 return BadRequest();
 
             IActionResult response = Unauthorized();
-            var user = await AuthenticateUser(login);
+            var user = await AuthenticateUser(login);)
 
             if (user != null)
             {
+                if (!user.Active) 
+                {
+                    return BadRequest("Unable to sign in with inactive user");
+                }
+                
                 var tokenString = GenerateJSONWebToken(user);
                 response = Ok(new { token = tokenString });
             }
@@ -80,6 +85,13 @@ namespace Events.API.Controllers
         {
             var user = int.Parse(User.Identity.Name);
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == user);
+            if (account == null) 
+            {
+                return NotFound($"Unable to load user");
+            }
+            
+            account.Active = true;
+            await _context.SaveChangesAsync();
             return Ok();
         }        
 
