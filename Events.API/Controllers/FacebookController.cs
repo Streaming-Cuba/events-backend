@@ -41,7 +41,7 @@ namespace Events.API.Controllers
         }
 
         [HttpGet("videos-info")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
         {
             var videos = await _service.GetVideos(since, until, "title", "length");

@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using Events.API.DTO;
 using AutoMapper;
+using System.ComponentModel.DataAnnotations;
+using Events.API.Services;
 
 namespace Events.API.Controllers
 {
@@ -26,14 +28,17 @@ namespace Events.API.Controllers
         private readonly AccountContext _context;
         private readonly PasswordHasher<string> _passwordHasher;
         private readonly IMapper _mapper; 
+        private readonly IEmailSender _emailSender;
 
         public AuthController(IConfiguration configuration,
                               AccountContext context,
+                              IEmailSender emailSender,
                               IMapper mapper)
         {
             _configuration = configuration;
             _context = context;
             _passwordHasher = new PasswordHasher<string>();
+            _emailSender = emailSender;
             _mapper = mapper;
         }
 
@@ -49,6 +54,11 @@ namespace Events.API.Controllers
 
             if (user != null)
             {
+                if (!user.Active) 
+                {
+                    return BadRequest("Unable to sign in with inactive user");
+                }
+                
                 var tokenString = GenerateJSONWebToken(user);
                 response = Ok(new { token = tokenString });
             }
@@ -69,20 +79,62 @@ namespace Events.API.Controllers
             return _mapper.Map<AccountReadDTO>(account);
         }
 
-        private string GenerateJSONWebToken(Account userInfo)
+        [HttpPost("confirm-account")]
+        [Authorize]
+        public async Task<IActionResult> ConfirmAccount() 
+        {
+            var user = int.Parse(User.Identity.Name);
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == user);
+            if (account == null) 
+            {
+                return NotFound($"Unable to load user");
+            }
+            
+            account.Active = true;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }        
+
+
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromQuery][Required] string email) 
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
+            if (account == null) 
+            {
+                return NotFound($"Unable to load user with email '{email}'.");
+            }
+            var token = GenerateJSONWebToken(account, expires: 1440);
+            try 
+            {
+                var url = $"https://events.streamingcuba.com/reset-password?token={token}";
+                await _emailSender.SendEmailAsync(email,
+                                                  subject: "[StreamingCuba Team] Restablecer contraseña",
+                                                  message: $"<a href={url}>{url}</a>");
+                return Ok();                
+            } 
+            catch 
+            {
+                return StatusCode(501); // Bad Gateway (Unable to send reset password link)
+            }
+        }        
+
+        private string GenerateJSONWebToken(Account user, short expires = 120)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
-            var claims = userInfo.Roles
+            var claims = user.Roles
                 .Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
-                .Prepend(new Claim(ClaimTypes.Name, userInfo.Id.ToString())).ToArray();
+                .Prepend(new Claim(ClaimTypes.Name, user.Id.ToString()))
+                .Prepend(new Claim(ClaimTypes.Email, user.Email)).ToArray();
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Issuer"],
                 claims,
-                expires: DateTime.Now.AddMinutes(120),
+                expires: DateTime.Now.AddMinutes(expires),
                 signingCredentials: credentials
             );
 
@@ -95,10 +147,13 @@ namespace Events.API.Controllers
                 .Include(d => d.Roles)
                 .ThenInclude(p => p.Role)
                 .FirstOrDefaultAsync(x => x.Email == login.Email);
+            if (account == null)
+                return null;
+
             // check for valid authentication
             var passwordVerification = _passwordHasher
                 .VerifyHashedPassword(account.Email, account.Password, login.Password);
-            if (account == null || passwordVerification != PasswordVerificationResult.Success)
+            if (passwordVerification != PasswordVerificationResult.Success)
                 return null;
 
             return account;

@@ -54,18 +54,19 @@ namespace Events.API
             // Services
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddHttpClient<FacebookService>();
+            services.AddTransient<IEmailSender>();
 
             // Verify
             // UNSAFE
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyHeader();
-                    policy.AllowAnyMethod();
-                    policy.AllowAnyOrigin();
-                });
-            });
+            // services.AddCors(options =>
+            // {
+            //     options.AddDefaultPolicy(policy =>
+            //     {
+            //         policy.AllowAnyHeader();
+            //         policy.AllowAnyMethod();
+            //         policy.AllowAnyOrigin();
+            //     });
+            // });
 
             services.AddControllers()
                     .AddNewtonsoftJson();
@@ -119,7 +120,11 @@ namespace Events.API
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors(x => {
+                x.AllowAnyHeader();
+                x.AllowAnyMethod();
+                x.AllowAnyOrigin();
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

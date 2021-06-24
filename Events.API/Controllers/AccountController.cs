@@ -33,7 +33,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> CreateAccount([FromBody] AccountCreateDTO account)
         {
             // validate data
@@ -82,7 +82,7 @@ namespace Events.API.Controllers
             return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpPatch("{id}")]
         public async Task<ActionResult> PatchAccount([FromRoute] int id,
                                                      [FromBody] JsonPatchDocument<AccountCreateDTO> account)
@@ -125,14 +125,18 @@ namespace Events.API.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public ActionResult<IEnumerable<AccountReadDTO>> GetAccounts([FromQuery] string email)
-            => Ok(email != null ? _context.Accounts.Include(d => d.Roles).Where(x => x.Email == email)?
-                                   .Select(x => _mapper.Map<AccountReadDTO>(x)) :
-                                   _context.Accounts.Include(d => d.Roles).Select(x => _mapper.Map<AccountReadDTO>(x)));
+            => Ok(email != null ? _context.Accounts.Include(d => d.Roles)
+                                                   .ThenInclude(d => d.Role)
+                                                   .Where(x => x.Email == email)?
+                                                   .Select(x => _mapper.Map<AccountReadDTO>(x)) 
+                                : _context.Accounts.Include(d => d.Roles)
+                                                   .ThenInclude(d => d.Role)
+                                                   .Select(x => _mapper.Map<AccountReadDTO>(x)));
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         [HttpGet("{id}")]
         public async Task<ActionResult<AccountReadDTO>> GetAccountById([FromRoute] int id)
         {
@@ -143,7 +147,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("role")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> CreateRole([FromBody] RoleCreateDTO role)
         {
             if ((await _context.Roles.FirstOrDefaultAsync(x => x.Name == role.Name))

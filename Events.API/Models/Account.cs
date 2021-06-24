@@ -28,8 +28,6 @@ namespace Events.API.Models {
         [Required]
         public string Password { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime ModifiedAt { get; set; }
+        public bool Active { get; set; } = false;
     }
 }
