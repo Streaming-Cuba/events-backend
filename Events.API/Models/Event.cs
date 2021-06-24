@@ -56,10 +56,6 @@ namespace Events.API.Models
 
         public ICollection<Group> Groups { get; set; }
 
-        public string Location { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime ModifiedAt { get; set; }        
+        public string Location { get; set; }       
     }
 }
