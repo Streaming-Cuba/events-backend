@@ -20,21 +20,21 @@ namespace Events.API.Services
         {
             _smtpClient = new SmtpClient() 
             {
-                Host = configuration["Email::Host"],
-                Port = configuration.GetValue<short>("Email::Port"),
-                EnableSsl = configuration.GetValue<bool>("Email::Ssl"),
+                Host = configuration["Email:Host"],
+                Port = configuration.GetValue<short>("Email:Port"),
+                EnableSsl = configuration.GetValue<bool>("Email:Ssl"),
             };
-            if (configuration.GetValue<bool>("Email::UseCredentials")) 
+            if (configuration.GetValue<bool>("Email:UseCredentials")) 
             {
                 _smtpClient.Credentials = new NetworkCredential() 
                 {
-                    UserName = configuration["Email::Username"],
-                    Password = configuration["Email::Password"]
+                    UserName = configuration["Email:Username"],
+                    Password = configuration["Email:Password"]
                 };
             }
 
-            _senderAddress = new MailAddress(configuration["Email::SenderAddress"], 
-                                            configuration["Email::SenderDisplayName"]);
+            _senderAddress = new MailAddress(configuration["Email:SenderAddress"], 
+                                            configuration["Email:SenderDisplayName"]);
         }
 
         public Task SendEmailAsync(string email, string subject, string message)
