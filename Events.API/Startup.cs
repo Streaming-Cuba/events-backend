@@ -54,19 +54,7 @@ namespace Events.API
             // Services
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddHttpClient<FacebookService>();
-            services.AddTransient<IEmailSender>();
-
-            // Verify
-            // UNSAFE
-            // services.AddCors(options =>
-            // {
-            //     options.AddDefaultPolicy(policy =>
-            //     {
-            //         policy.AllowAnyHeader();
-            //         policy.AllowAnyMethod();
-            //         policy.AllowAnyOrigin();
-            //     });
-            // });
+            services.AddTransient<EmailSender>();
 
             services.AddControllers()
                     .AddNewtonsoftJson();
