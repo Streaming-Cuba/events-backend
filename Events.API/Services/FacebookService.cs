@@ -38,7 +38,7 @@ namespace Events.API.Services
             var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{requestUri}"));
             var tokens = new List<JToken>();
 
-            for ( ; ; )
+            for (; ; )
             {
                 if (!r.ContainsKey("data"))
                     throw new Exception("Invalid response from Facebook API Graph");
@@ -63,25 +63,37 @@ namespace Events.API.Services
 
         public async Task<List<Dictionary<string, object>>> GetVideos(DateTime start, DateTime end, params string[] fields)
         {
-            if ((end - start).Days >= 6 * 30)
-                throw new ArgumentOutOfRangeException("Max time diference is of 6 months");
+            if ((end - start).Days >= 90)
+                throw new ArgumentOutOfRangeException("Max time diference is of 90 days");
 
             return (await Request($"{_pageIdentifier}/videos?access_token={_accessToken}&fields=created_time,{string.Join(",", fields)}&since={start.ToString("s")}&until={end.ToString("s")}"))
                     .Select(x => x.ToObject<Dictionary<string, object>>())
                     .ToList();
         }
 
-        public async Task<long> GetVideoTotalViews(string videoId) =>
-            (await Request($"{videoId}/video_insights/total_video_views?access_token={_accessToken}"))
-                .First()["values"]
-                .First()["value"]
-                .Value<long>();
+        public async Task<long?> GetVideoTotalViews(string videoId)
+        {
+            var data = await Request($"{videoId}/video_insights/total_video_views?access_token={_accessToken}");
 
-        public async Task<long> GetVideoTotalImpressions(string videoId) =>
-            (await Request($"{videoId}/video_insights/total_video_impressions?access_token={_accessToken}"))
-                .First()["values"]
-                .First()["value"]
-                .Value<long>();
+            if (data.Count == 0)
+                return null;
+
+            return data.First()["values"]
+                       .First()["value"]
+                       .Value<long>();
+        }
+
+        public async Task<long?> GetVideoTotalImpressions(string videoId)
+        {
+            var data = await Request($"{videoId}/video_insights/total_video_impressions?access_token={_accessToken}");
+
+            if (data.Count == 0)
+                return null;
+
+            return data.First()["values"]
+                       .First()["value"]
+                       .Value<long?>();
+        }
 
         public async Task<Dictionary<string, long>> GetViewsByGenderAge(string videoId)
         {
