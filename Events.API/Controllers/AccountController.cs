@@ -140,7 +140,9 @@ namespace Events.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AccountReadDTO>> GetAccountById([FromRoute] int id)
         {
-            var account = await _context.Accounts.FindAsync(id);
+            var account = await _context.Accounts.Include(d => d.Roles)
+                                                 .ThenInclude(d => d.Role)
+                                                 .FirstOrDefaultAsync(x => x.Id == id);
             if (account != null)
                 return _mapper.Map<AccountReadDTO>(account);
             return NotFound(id);
