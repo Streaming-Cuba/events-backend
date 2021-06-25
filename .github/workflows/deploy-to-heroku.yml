@@ -26,8 +26,8 @@ jobs:
          sed -i 's/MEDIA_PATH/${{ secrets.QA_MEDIA_PATH }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_TOKEN/${{ secrets.FACEBOOK_TOKEN }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_PAGE_IDENTIFIER/${{ secrets.FACEBOOK_PAGE_IDENTIFIER }}/g' Events.API/appsettings.json
-         sed -i 's/MAIL_HOST/${{ secrets.MAIL_HOST }}/g' Events.API/appsettings.json
-         sed -i 's/MAIL_PORT/${{ secrets.MAIL_PORT }}/g' Events.API/appsettings.json
+         sed -i 's/EMAIL_HOST/${{ secrets.EMAIL_HOST }}/g' Events.API/appsettings.json
+         sed -i 's/EMAIL_HOST/${{ secrets.EMAIL_HOST }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_SENDER_ADDRESS/${{ secrets.EMAIL_SENDER_ADDRESS }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_SENDER_DISPLAY_NAME/${{ secrets.EMAIL_SENDER_DISPLAY_NAME }}/g' Events.API/appsettings.json
 
@@ -67,8 +67,8 @@ jobs:
          sed -i 's/MEDIA_PATH/${{ secrets.QA_MEDIA_PATH }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_TOKEN/${{ secrets.FACEBOOK_TOKEN }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_PAGE_IDENTIFIER/${{ secrets.FACEBOOK_PAGE_IDENTIFIER }}/g' Events.API/appsettings.json
-         sed -i 's/MAIL_HOST/${{ secrets.MAIL_HOST }}/g' Events.API/appsettings.json
-         sed -i 's/MAIL_PORT/${{ secrets.MAIL_PORT }}/g' Events.API/appsettings.json
+         sed -i 's/EMAIL_HOST/${{ secrets.EMAIL_HOST }}/g' Events.API/appsettings.json
+         sed -i 's/EMAIL_HOST/${{ secrets.EMAIL_HOST }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_SENDER_ADDRESS/${{ secrets.EMAIL_SENDER_ADDRESS }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_SENDER_DISPLAY_NAME/${{ secrets.EMAIL_SENDER_DISPLAY_NAME }}/g' Events.API/appsettings.json
 
