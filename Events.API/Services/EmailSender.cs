@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Events.API.Services
 {
-    public class EmailSender : IEmailSender
+    public class EmailSender
     {
         private readonly SmtpClient _smtpClient;
         private readonly MailAddress _senderAddress;

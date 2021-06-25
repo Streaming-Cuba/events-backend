@@ -28,11 +28,11 @@ namespace Events.API.Controllers
         private readonly AccountContext _context;
         private readonly PasswordHasher<string> _passwordHasher;
         private readonly IMapper _mapper; 
-        private readonly IEmailSender _emailSender;
+        private readonly EmailSender _emailSender;
 
         public AuthController(IConfiguration configuration,
                               AccountContext context,
-                              IEmailSender emailSender,
+                              EmailSender emailSender,
                               IMapper mapper)
         {
             _configuration = configuration;
