@@ -100,12 +100,17 @@ namespace Events.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromQuery][Required] string email) 
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
-            if (account == null) 
+            var user = await _context.Accounts.Include(d => d.Roles)
+                                              .ThenInclude(p => p.Role)
+                                              .FirstOrDefaultAsync(x => x.Email == email);
+
+            if (user == null) 
             {
                 return NotFound($"Unable to load user with email '{email}'.");
             }
-            var token = GenerateJSONWebToken(account, expires: 1440);
+
+            var token = GenerateJSONWebToken(user, expires: 1440);
+
             try 
             {
                 var url = $"https://events.streamingcuba.com/reset-password?token={token}";
