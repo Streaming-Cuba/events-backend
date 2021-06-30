@@ -45,20 +45,23 @@ namespace Events.API.Controllers
         public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
         {
             var videos = await _service.GetVideos(since, until, "title", "length");
-            var rankingByCountry = new Dictionary<string, long>();
-            var rankingByRegion = new Dictionary<string, long>();
-            var demographic = new Dictionary<string, long>();
+            var rankingByCountryTotal = new Dictionary<string, long>();
+            var rankingByRegionTotal = new Dictionary<string, long>();
+            var demographicTotal = new Dictionary<string, long>();
+            var reactionsTotal = new Dictionary<string, long>();
 
             var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x =>
             {
                 var id = x["id"] as string;
                 var countries = await _service.GetViewsByCountry(id);
                 var regions = await _service.GetViewsByRegion(id);
-                var demo = await _service.GetViewsByGenderAge(id);
+                var demographic = await _service.GetViewsByGenderAge(id);
+                var reactions = await _service.GetVideoReactionsByType(id);
 
-                AggregateDictionaries(rankingByCountry, countries);
-                AggregateDictionaries(rankingByRegion, regions);
-                AggregateDictionaries(demographic, demo);
+                AggregateDictionaries(rankingByCountryTotal, countries);
+                AggregateDictionaries(rankingByRegionTotal, regions);
+                AggregateDictionaries(demographicTotal, demographic);
+                AggregateDictionaries(reactionsTotal, reactions);
 
                 return new
                 {
@@ -66,10 +69,13 @@ namespace Events.API.Controllers
                     date = x["created_time"],
                     reach = await _service.GetVideoTotalImpressions(id),
                     views = await _service.GetVideoTotalViews(id),
+                    comments = await _service.GetVideoCountComments(id),
+                    shares = await _service.GetVideoSharesCount(id),
+                    reactions = reactions,
                     length = x["length"],
                     rankingByRegion = regions,
                     rankingByCountry = countries,
-                    demographic = demo
+                    demographic = demographic
                 };
             }));
             
@@ -78,12 +84,15 @@ namespace Events.API.Controllers
                 videos_count = videosInfo.Length,
                 total_reach = videosInfo.Sum(x => x.reach),
                 total_views = videosInfo.Sum(x => x.views),
-                total_countries = rankingByCountry.Count,
-                total_regions = rankingByRegion.Count,
+                total_countries = rankingByCountryTotal.Count,
+                total_regions = rankingByRegionTotal.Count,
+                total_comments = videosInfo.Sum(x => x.comments),
+                total_shares = videosInfo.Sum(x => x.shares),
+                total_reactions = reactionsTotal,
                 videos = videosInfo,
-                rankingByRegion = rankingByRegion,
-                rankingByCountry = rankingByCountry,
-                demographic = demographic
+                rankingByRegion = rankingByRegionTotal,
+                rankingByCountry = rankingByCountryTotal,
+                demographic = demographicTotal
             });
         }
     }

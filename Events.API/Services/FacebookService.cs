@@ -71,6 +71,36 @@ namespace Events.API.Services
                     .ToList();
         }
 
+        public async Task<long?> GetVideoCountComments(string videoId)
+        {
+            var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{videoId}/comments?access_token={_accessToken}&limit=0&summary=1"));
+
+            if (r["summary"] != null) 
+                return r["summary"]["total_count"].Value<long>();
+            return null;
+        }
+
+        public async Task<Dictionary<string, long>> GetVideoReactionsByType(string videoId)
+        {
+            var data = await Request($"{videoId}/video_insights/total_video_reactions_by_type_total?access_token={_accessToken}");
+
+            if (data.Count == 0)
+                return null;
+
+            return data.First()["values"]
+                       .First()["value"]
+                       .ToObject<Dictionary<string, long>>();
+        }
+
+        public async Task<long?> GetVideoSharesCount(string videoId)
+        {
+            var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{await GetId()}_{videoId}?access_token={_accessToken}&fields=shares"));
+
+            if (r["shares"] != null)
+                return r["shares"]["count"].Value<long>();
+            return null;
+        }
+
         public async Task<long?> GetVideoTotalViews(string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_views?access_token={_accessToken}");
