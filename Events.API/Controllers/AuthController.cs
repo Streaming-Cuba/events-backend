@@ -44,6 +44,7 @@ namespace Events.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("sign-in")]
+        [RequireHttps]
         public async Task<IActionResult> SignIn([FromBody] AuthenticationModel login)
         {
             if (!ModelState.IsValid)
@@ -81,6 +82,7 @@ namespace Events.API.Controllers
 
         [HttpPost("confirm-account")]
         [Authorize]
+        [RequireHttps]
         public async Task<IActionResult> ConfirmAccount([FromBody][Required] string password) 
         {
             var user = int.Parse(User.Identity.Name);
