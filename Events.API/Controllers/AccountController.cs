@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
+using Events.API.Services;
 
 namespace Events.API.Controllers
 {
@@ -23,6 +24,7 @@ namespace Events.API.Controllers
     {
         private readonly AccountContext _context;
         private readonly IMapper _mapper;
+        private readonly EmailSender _emailSender;
         private readonly PasswordHasher<string> _passwordHasher;
 
         public AccountController(AccountContext context, IMapper mapper)
@@ -30,7 +32,7 @@ namespace Events.API.Controllers
             _context = context;
             _mapper = mapper;
             _passwordHasher = new PasswordHasher<string>();
-        }
+        }        
 
         [HttpPost]
         [Authorize(Roles = "Administrador")]
@@ -53,7 +55,9 @@ namespace Events.API.Controllers
 
             _account.CreatedAt = DateTime.UtcNow;
             _account.ModifiedAt = DateTime.UtcNow;
-            _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
+            _account.Password = string.Empty;
+            _account.Active = false;
+            // _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
             _account.Roles = new List<AccountRole>();
 
             if (account.RolesId.Count == 0)
@@ -79,6 +83,7 @@ namespace Events.API.Controllers
 
             await _context.Accounts.AddAsync(_account);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
         }
 

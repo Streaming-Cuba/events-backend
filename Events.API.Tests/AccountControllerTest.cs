@@ -19,18 +19,18 @@ namespace Events.API.Tests
 {
     public class AccountControllerTest
     {
-        (AccountController, AccountContext) CreateContextForAddition()
-        {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<AccountProfile>();
-            });
-            var mapper = new Mapper(config);
-            var options = new DbContextOptionsBuilder<AccountContext>()
-                .UseInMemoryDatabase(databaseName: $"Test{Guid.NewGuid()}").Options;
+        // (AccountController, AccountContext) CreateContextForAddition()
+        // {
+        //     var config = new MapperConfiguration(cfg =>
+        //     {
+        //         cfg.AddProfile<AccountProfile>();
+        //     });
+        //     var mapper = new Mapper(config);
+        //     var options = new DbContextOptionsBuilder<AccountContext>()
+        //         .UseInMemoryDatabase(databaseName: $"Test{Guid.NewGuid()}").Options;
 
-            var context = new AccountContext(options);
-            return (new AccountController(context, mapper), context);
-        }
+        //     var context = new AccountContext(options);
+        //     return (new AccountController(context, mapper), context);
+        // }
     }
 }
