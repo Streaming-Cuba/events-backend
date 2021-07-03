@@ -73,8 +73,8 @@ namespace Events.API.Controllers
                     shares = await _service.GetVideoSharesCount(id),
                     reactions = reactions,
                     length = x["length"],
-                    rankingByRegion = regions,
-                    rankingByCountry = countries,
+                    ranking_by_region = regions,
+                    ranking_by_country = countries,
                     demographic = demographic
                 };
             }));
@@ -90,8 +90,8 @@ namespace Events.API.Controllers
                 total_shares = videosInfo.Sum(x => x.shares),
                 total_reactions = reactionsTotal,
                 videos = videosInfo,
-                rankingByRegion = rankingByRegionTotal,
-                rankingByCountry = rankingByCountryTotal,
+                ranking_by_region = rankingByRegionTotal,
+                ranking_by_country = rankingByCountryTotal,
                 demographic = demographicTotal
             });
         }

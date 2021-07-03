@@ -17,6 +17,8 @@ namespace Events.API.Services
         private const string ApiGraphVersion = "v11.0";
         private const string BaseUrl = "https://graph.facebook.com";
 
+        private string _pageIDCache = null;
+
         public FacebookService(HttpClient client, IConfiguration configuration)
         {
             if (configuration is null)
@@ -59,7 +61,13 @@ namespace Events.API.Services
             return tokens;
         }
 
-        public async Task<string> GetId() => (await Request($"{_pageIdentifier}")).First()["id"].ToString();
+        public async Task<string> GetId() 
+        {
+            if (_pageIDCache == null)
+                _pageIDCache = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{_pageIdentifier}?access_token={_accessToken}"))["id"]
+                                      .ToString();
+            return _pageIDCache;
+        }
 
         public async Task<List<Dictionary<string, object>>> GetVideos(DateTime start, DateTime end, params string[] fields)
         {
@@ -94,7 +102,8 @@ namespace Events.API.Services
 
         public async Task<long?> GetVideoSharesCount(string videoId)
         {
-            var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{await GetId()}_{videoId}?access_token={_accessToken}&fields=shares"));
+            var id = await GetId();
+            var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{id}_{videoId}?access_token={_accessToken}&fields=shares"));
 
             if (r["shares"] != null)
                 return r["shares"]["count"].Value<long>();
