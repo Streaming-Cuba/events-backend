@@ -85,7 +85,7 @@ namespace Events.API.Controllers
         [RequireHttps]
         public async Task<IActionResult> ConfirmAccount([FromBody][Required] string password) 
         {
-            var user = int.Parse(User.Identity.Name);
+            var user = int.Parse(User.FindFirstValue(ClaimTypes.Name));
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == user);
             if (account == null) 
             {
