@@ -85,8 +85,8 @@ namespace Events.API.Controllers
         [RequireHttps]
         public async Task<IActionResult> ConfirmAccount([FromBody][Required] string password) 
         {
-            var user = int.Parse(User.FindFirstValue(ClaimTypes.Name));
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == user);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
             if (account == null) 
             {
                 return NotFound($"Unable to load user");
