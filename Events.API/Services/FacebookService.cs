@@ -93,7 +93,7 @@ namespace Events.API.Services
             var data = await Request($"{videoId}/video_insights/total_video_reactions_by_type_total?access_token={_accessToken}");
 
             if (data.Count == 0)
-                return null;
+                return new Dictionary<string, long>();
 
             return data.First()["values"]
                        .First()["value"]
@@ -103,11 +103,18 @@ namespace Events.API.Services
         public async Task<long?> GetVideoSharesCount(string videoId)
         {
             var id = await GetId();
-            var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{id}_{videoId}?access_token={_accessToken}&fields=shares"));
+            try
+            {
+                var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{id}_{videoId}?access_token={_accessToken}&fields=shares"));
 
-            if (r["shares"] != null)
-                return r["shares"]["count"].Value<long>();
-            return null;
+                if (r["shares"] != null)
+                    return r["shares"]["count"].Value<long>();
+                return null;
+            }
+            catch
+            {
+                return null;
+            }            
         }
 
         public async Task<long?> GetVideoTotalViews(string videoId)

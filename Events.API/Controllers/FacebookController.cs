@@ -30,13 +30,15 @@ namespace Events.API.Controllers
 
         private void AggregateDictionaries<K>(Dictionary<K, long> a, Dictionary<K, long> b)
         {
-            var r = new Dictionary<K, long>(a);
-            foreach (var pair in b)
+            if (b != null) 
             {
-                if (a.ContainsKey(pair.Key))
-                    a[pair.Key] += pair.Value;
-                else
-                    a.Add(pair.Key, pair.Value);
+                foreach (var pair in b)
+                {
+                    if (a.ContainsKey(pair.Key))
+                        a[pair.Key] += pair.Value;
+                    else
+                        a.Add(pair.Key, pair.Value);
+                }
             }
         }
 
