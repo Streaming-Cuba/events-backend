@@ -72,8 +72,7 @@ namespace Events.API.Controllers
         {
             // validate data
             if (!account.Email.IsEmail() ||
-                (!string.IsNullOrWhiteSpace(account.AvatarPath) && !account.AvatarPath.IsUrl()) ||
-                string.IsNullOrWhiteSpace(account.Password))
+                (!string.IsNullOrWhiteSpace(account.AvatarPath) && !account.AvatarPath.IsUrl()))
                 return ValidationProblem();
 
             if ((await _context.Accounts.FirstOrDefaultAsync(x => x.Email == account.Email))
