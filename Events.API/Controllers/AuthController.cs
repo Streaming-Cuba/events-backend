@@ -99,7 +99,7 @@ namespace Events.API.Controllers
 
             // update specific fields
             account.Active = true;
-            account.Password = _passwordHasher.HashPassword(account.Email, account.Password);
+            account.Password = _passwordHasher.HashPassword(account.Email, password);
 
             await _context.SaveChangesAsync();
             return Ok();
