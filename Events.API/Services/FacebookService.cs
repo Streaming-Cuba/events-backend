@@ -141,6 +141,9 @@ namespace Events.API.Services
                        .Value<long?>();
         }
 
+        public async Task<long?> GetCrosspostVideoCount(string videoId)
+            => (await Request($"{videoId}/crosspost_shared_pages?access_token={_accessToken}")).Count;
+
         public async Task<Dictionary<string, long>> GetViewsByGenderAge(string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_view_time_by_age_bucket_and_gender?access_token={_accessToken}");
