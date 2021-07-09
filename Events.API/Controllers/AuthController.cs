@@ -92,6 +92,11 @@ namespace Events.API.Controllers
                 return NotFound($"Unable to load user");
             }
             
+            if (account.Active)
+            {
+                return BadRequest("This account is already actived");
+            }
+
             // update specific fields
             account.Active = true;
             account.Password = _passwordHasher.HashPassword(account.Email, account.Password);
