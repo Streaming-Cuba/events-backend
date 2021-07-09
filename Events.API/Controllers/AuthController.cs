@@ -83,7 +83,7 @@ namespace Events.API.Controllers
         [HttpPost("confirm-account")]
         [Authorize]
         [RequireHttps]
-        public async Task<IActionResult> ConfirmAccount([FromBody][Required] string password) 
+        public async Task<IActionResult> ConfirmAccount([FromForm][Required] string password) 
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
             var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
