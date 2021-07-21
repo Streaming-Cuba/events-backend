@@ -100,15 +100,12 @@ namespace Events.API.Services
                        .ToObject<Dictionary<string, long>>();
         }
 
-        
-
-
         public async Task<Dictionary<string, long>> GetVideoActionsCountByType(string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_stories_by_action_type?access_token={_accessToken}");
 
             if (data.Count == 0)
-                return null;
+                return new Dictionary<string, long>();
 
             return data.First()["values"]
                        .First()["value"]
