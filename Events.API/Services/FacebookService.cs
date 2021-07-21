@@ -100,21 +100,19 @@ namespace Events.API.Services
                        .ToObject<Dictionary<string, long>>();
         }
 
-        public async Task<long?> GetVideoSharesCount(string videoId)
-        {
-            var id = await GetId();
-            try
-            {
-                var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{id}_{videoId}?access_token={_accessToken}&fields=shares"));
+        
 
-                if (r["shares"] != null)
-                    return r["shares"]["count"].Value<long>();
+
+        public async Task<Dictionary<string, long>> GetVideoActionsCountByType(string videoId)
+        {
+            var data = await Request($"{videoId}/video_insights/total_video_stories_by_action_type?access_token={_accessToken}");
+
+            if (data.Count == 0)
                 return null;
-            }
-            catch
-            {
-                return null;
-            }            
+
+            return data.First()["values"]
+                       .First()["value"]
+                       .ToObject<Dictionary<string, long>>();        
         }
 
         public async Task<long?> GetVideoTotalViews(string videoId)
@@ -142,7 +140,7 @@ namespace Events.API.Services
         }
 
         public async Task<long?> GetCrosspostVideoCount(string videoId)
-            => (await Request($"{videoId}/crosspost_shared_pages?access_token={_accessToken}")).Count;
+            => (await Request($"{videoId}/crosspost_shared_pages?access_token={_accessToken}&limit=1000")).Count;
 
         public async Task<Dictionary<string, long>> GetViewsByGenderAge(string videoId)
         {

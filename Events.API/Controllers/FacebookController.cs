@@ -65,14 +65,16 @@ namespace Events.API.Controllers
                 AggregateDictionaries(demographicTotal, demographic);
                 AggregateDictionaries(reactionsTotal, reactions);
 
+                var actionsByType = await _service.GetVideoActionsCountByType(id);                
+
                 return new
                 {
                     title = (x.ContainsKey("title") ? x["title"] : null),
                     date = x["created_time"],
                     reach = await _service.GetVideoTotalImpressions(id),
                     views = await _service.GetVideoTotalViews(id),
-                    comments = await _service.GetVideoCountComments(id),
-                    shares = await _service.GetVideoSharesCount(id),
+                    comments = actionsByType.ContainsKey("comment") ? actionsByType["comment"] : 0,
+                    shares = actionsByType.ContainsKey("share") ? actionsByType["share"] : 0,
                     crosspost_count = await _service.GetCrosspostVideoCount(id),
                     reactions = reactions,
                     length = x["length"],
