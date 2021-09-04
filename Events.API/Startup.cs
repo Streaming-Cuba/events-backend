@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
 using Events.API.Services;
+using reCAPTCHA.AspNetCore;
 
 namespace Events.API
 {
@@ -27,6 +28,8 @@ namespace Events.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRecaptcha(Configuration.GetSection("RecaptchaSettings"));
+            
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

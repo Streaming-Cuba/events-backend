@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Events.API.Helpers;
+using reCAPTCHA.AspNetCore.Attributes;
 
 namespace Events.API.Controllers
 {
@@ -213,6 +214,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("vote")]
+        [ValidateRecaptcha]
         public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
         {
             var groupItem = await _context.GroupItems.Include(d => d.Votes)
