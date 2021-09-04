@@ -28,8 +28,6 @@ namespace Events.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRecaptcha(Configuration.GetSection("RecaptchaSettings"));
-            
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,6 +46,8 @@ namespace Events.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
+
+            services.AddRecaptcha(Configuration.GetSection("RecaptchaSettings"));
 
             // DbContext's
             services.AddDbContext<AccountContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("AccountsConnection")));
@@ -69,7 +69,7 @@ namespace Events.API
                     Version = "v1",
                     Title = "Streaming Cuba Events API",
                     Description = "API for access to events platform from Streaming Cuba services",
-                    TermsOfService = new Uri("https://example.com/terms"),
+                    TermsOfService = new Uri("https://events.streamingcuba.com/terms"),
                     Contact = new OpenApiContact
                     {
                         Name = "Streaming Cuba",
