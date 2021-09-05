@@ -5,6 +5,9 @@
 # Logs
 Logs/
 
+# Local Tests
+Events.API.LocalTests
+
 # Generated files
 project.lock.json
 .vs/
