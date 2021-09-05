@@ -213,8 +213,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("vote")]
-        [ValidateRecaptcha]
-        public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
+        public async Task<ActionResult> CreateVote([Required, RecaptchaResponse] string recaptchaResponse, [FromBody] GroupItemVoteCreateDTO vote)
         {
             var groupItem = await _context.GroupItems.Include(d => d.Votes)
                                                      .FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);

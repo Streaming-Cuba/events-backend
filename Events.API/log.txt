@@ -1,1 +1,0 @@
-2021-09-05 10:11:53.869 -04:00 [INF] Entity Framework Core 5.0.5 initialized 'EventContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL' with options: None
