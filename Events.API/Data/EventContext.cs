@@ -31,8 +31,6 @@ namespace Events.API.Data
 
         public DbSet<GroupItemSocial> GroupItemSocials { get; set; }
 
-        public DbSet<GroupItemMetadata> GroupItemMetadatas { get; set; }
-
         public DbSet<GroupItemVote> GroupItemVotes { get; set; }
         
         public EventContext(DbContextOptions<EventContext> options) : base(options) { }

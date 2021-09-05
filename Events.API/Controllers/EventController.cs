@@ -47,13 +47,13 @@ namespace Events.API.Controllers
 
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.Items)
-                    .ThenInclude(p => p.Metadata)
+                    .ThenInclude(p => p.MetadataJson)
 
                     // second level
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
-                    .ThenInclude(p => p.Metadata)
+                    .ThenInclude(p => p.MetadataJson)
                     .AsSplitQuery() // perform in multiples queries
 
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
@@ -86,7 +86,7 @@ namespace Events.API.Controllers
                                                 .ThenInclude(p => p.GroupParent)
 
                                                 .Include(d => d.GroupItem)
-                                                .ThenInclude(p => p.Metadata)
+                                                .ThenInclude(p => p.MetadataJson)
 
                                                 .AsSplitQuery() // perform in multiples queries                                                
                                                 .AsEnumerable()
@@ -115,8 +115,7 @@ namespace Events.API.Controllers
                     type = x.Type,
                     groupItemName = x.GroupItem.Name,
                     groupItemCoverPath = x.GroupItem.CoverPath,
-                    interpreter = x.GroupItem.Metadata?.Interpreter,
-                    productor = x.GroupItem.Metadata?.Productor
+                    metadata = x.GroupItem.MetadataJson,
                 }).ToList());
             }
             else
