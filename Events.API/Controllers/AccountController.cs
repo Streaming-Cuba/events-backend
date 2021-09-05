@@ -14,6 +14,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
+using Events.API.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace Events.API.Controllers
 {
@@ -23,13 +29,41 @@ namespace Events.API.Controllers
     {
         private readonly AccountContext _context;
         private readonly IMapper _mapper;
+        private readonly EmailSender _emailSender;
+        private readonly IConfiguration _configuration;
         private readonly PasswordHasher<string> _passwordHasher;
 
-        public AccountController(AccountContext context, IMapper mapper)
+        public AccountController(AccountContext context,
+                                 IConfiguration configuration,
+                                 EmailSender emailSender,
+                                 IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
             _passwordHasher = new PasswordHasher<string>();
+            _configuration = configuration;
+            _emailSender = emailSender;
+        }        
+
+        private string GenerateJSONWebToken(Account user, short expires = 120)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+
+            var claims = user.Roles
+                .Select(x => new Claim(ClaimTypes.Role, x.Role.Name))
+                .Prepend(new Claim(ClaimTypes.Name, user.Id.ToString()))
+                .Prepend(new Claim(ClaimTypes.Email, user.Email)).ToArray();
+
+            var token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Issuer"],
+                claims,
+                expires: DateTime.Now.AddMinutes(expires),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [HttpPost]
@@ -38,8 +72,7 @@ namespace Events.API.Controllers
         {
             // validate data
             if (!account.Email.IsEmail() ||
-                (!string.IsNullOrWhiteSpace(account.AvatarPath) && !account.AvatarPath.IsUrl()) ||
-                string.IsNullOrWhiteSpace(account.Password))
+                (!string.IsNullOrWhiteSpace(account.AvatarPath) && !account.AvatarPath.IsUrl()))
                 return ValidationProblem();
 
             if ((await _context.Accounts.FirstOrDefaultAsync(x => x.Email == account.Email))
@@ -53,7 +86,9 @@ namespace Events.API.Controllers
 
             _account.CreatedAt = DateTime.UtcNow;
             _account.ModifiedAt = DateTime.UtcNow;
-            _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
+            _account.Password = string.Empty;
+            _account.Active = false;
+            // _account.Password = _passwordHasher.HashPassword(_account.Email, account.Password);
             _account.Roles = new List<AccountRole>();
 
             if (account.RolesId.Count == 0)
@@ -77,9 +112,23 @@ namespace Events.API.Controllers
                 });
             }
 
-            await _context.Accounts.AddAsync(_account);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
+            await _context.Accounts.AddAsync(_account);          
+            var token = GenerateJSONWebToken(_account, expires: 1440);
+
+            try 
+            {
+                var url = $"https://admin.streamingcuba.com/confirm-account?token={token}";
+                await _emailSender.SendEmailAsync(account.Email,
+                                                  subject: "[StreamingCuba Team]",
+                                                  message: $"{url}");
+
+                await _context.SaveChangesAsync();
+                return CreatedAtAction(nameof(CreateAccount), new { id = _account.Id });
+            } 
+            catch 
+            {
+                return StatusCode(501); // Bad Gateway (Unable to send reset password link)
+            }            
         }
 
         [Authorize(Roles = "Administrador")]

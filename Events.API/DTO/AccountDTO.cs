@@ -23,7 +23,7 @@ namespace Events.API.DTO
         [Required]
         public ICollection<int> RolesId { get; set; }
 
-        [Required]
+        // [Required]
         public string Password { get; set; }
 
         public override async Task<bool> EnsureValidStateOnPatch(DbContext context, ModelStateDictionary ModelState)

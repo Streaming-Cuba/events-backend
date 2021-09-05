@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Events.API.Helpers;
+using reCAPTCHA.AspNetCore.Attributes;
 
 namespace Events.API.Controllers
 {
@@ -46,13 +47,13 @@ namespace Events.API.Controllers
 
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.Items)
-                    .ThenInclude(p => p.Metadata)
+                    .ThenInclude(p => p.MetadataJson)
 
                     // second level
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
-                    .ThenInclude(p => p.Metadata)
+                    .ThenInclude(p => p.MetadataJson)
                     .AsSplitQuery() // perform in multiples queries
 
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
@@ -85,7 +86,7 @@ namespace Events.API.Controllers
                                                 .ThenInclude(p => p.GroupParent)
 
                                                 .Include(d => d.GroupItem)
-                                                .ThenInclude(p => p.Metadata)
+                                                .ThenInclude(p => p.MetadataJson)
 
                                                 .AsSplitQuery() // perform in multiples queries                                                
                                                 .AsEnumerable()
@@ -114,8 +115,7 @@ namespace Events.API.Controllers
                     type = x.Type,
                     groupItemName = x.GroupItem.Name,
                     groupItemCoverPath = x.GroupItem.CoverPath,
-                    interpreter = x.GroupItem.Metadata?.Interpreter,
-                    productor = x.GroupItem.Metadata?.Productor
+                    metadata = x.GroupItem.MetadataJson,
                 }).ToList());
             }
             else
@@ -213,7 +213,7 @@ namespace Events.API.Controllers
         }
 
         [HttpPost("vote")]
-        public async Task<ActionResult> CreateVote([FromBody] GroupItemVoteCreateDTO vote)
+        public async Task<ActionResult> CreateVote([Required, RecaptchaResponse] string recaptchaResponse, [FromBody] GroupItemVoteCreateDTO vote)
         {
             var groupItem = await _context.GroupItems.Include(d => d.Votes)
                                                      .FirstOrDefaultAsync(x => x.Id == vote.GroupItemId);

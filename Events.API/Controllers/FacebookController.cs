@@ -30,13 +30,15 @@ namespace Events.API.Controllers
 
         private void AggregateDictionaries<K>(Dictionary<K, long> a, Dictionary<K, long> b)
         {
-            var r = new Dictionary<K, long>(a);
-            foreach (var pair in b)
+            if (b != null) 
             {
-                if (a.ContainsKey(pair.Key))
-                    a[pair.Key] += pair.Value;
-                else
-                    a.Add(pair.Key, pair.Value);
+                foreach (var pair in b)
+                {
+                    if (a.ContainsKey(pair.Key))
+                        a[pair.Key] += pair.Value;
+                    else
+                        a.Add(pair.Key, pair.Value);
+                }
             }
         }
 
@@ -63,14 +65,17 @@ namespace Events.API.Controllers
                 AggregateDictionaries(demographicTotal, demographic);
                 AggregateDictionaries(reactionsTotal, reactions);
 
+                var actionsByType = await _service.GetVideoActionsCountByType(id);                
+
                 return new
                 {
                     title = (x.ContainsKey("title") ? x["title"] : null),
                     date = x["created_time"],
                     reach = await _service.GetVideoTotalImpressions(id),
                     views = await _service.GetVideoTotalViews(id),
-                    comments = await _service.GetVideoCountComments(id),
-                    shares = await _service.GetVideoSharesCount(id),
+                    comments = actionsByType.ContainsKey("comment") ? actionsByType["comment"] : 0,
+                    shares = actionsByType.ContainsKey("share") ? actionsByType["share"] : 0,
+                    crosspost_count = await _service.GetCrosspostVideoCount(id),
                     reactions = reactions,
                     length = x["length"],
                     ranking_by_region = regions,
@@ -88,6 +93,7 @@ namespace Events.API.Controllers
                 total_regions = rankingByRegionTotal.Count,
                 total_comments = videosInfo.Sum(x => x.comments),
                 total_shares = videosInfo.Sum(x => x.shares),
+                total_crossposts = videosInfo.Sum(x => x.crosspost_count),
                 total_reactions = reactionsTotal,
                 videos = videosInfo,
                 ranking_by_region = rankingByRegionTotal,

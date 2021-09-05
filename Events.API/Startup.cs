@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
 using Events.API.Services;
+using reCAPTCHA.AspNetCore;
 
 namespace Events.API
 {
@@ -46,6 +47,8 @@ namespace Events.API
                 };
             });
 
+            services.AddRecaptcha(Configuration.GetSection("RecaptchaSettings"));
+
             // DbContext's
             services.AddDbContext<AccountContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("AccountsConnection")));
             services.AddDbContext<EventContext>(opt => opt.UseNpgsql(Configuration.GetConnectionString("EventsConnection")));
@@ -66,7 +69,7 @@ namespace Events.API
                     Version = "v1",
                     Title = "Streaming Cuba Events API",
                     Description = "API for access to events platform from Streaming Cuba services",
-                    TermsOfService = new Uri("https://example.com/terms"),
+                    TermsOfService = new Uri("https://events.streamingcuba.com/terms"),
                     Contact = new OpenApiContact
                     {
                         Name = "Streaming Cuba",

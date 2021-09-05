@@ -44,6 +44,7 @@ namespace Events.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("sign-in")]
+        [RequireHttps]
         public async Task<IActionResult> SignIn([FromBody] AuthenticationModel login)
         {
             if (!ModelState.IsValid)
@@ -77,28 +78,36 @@ namespace Events.API.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             return _mapper.Map<AccountReadDTO>(account);
-        }
+        }  
 
         [HttpPost("confirm-account")]
         [Authorize]
-        public async Task<IActionResult> ConfirmAccount() 
+        [RequireHttps]
+        public async Task<IActionResult> ConfirmAccount([FromForm][Required] string password) 
         {
-            var user = int.Parse(User.Identity.Name);
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Id == user);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
             if (account == null) 
             {
                 return NotFound($"Unable to load user");
             }
             
+            if (account.Active)
+            {
+                return BadRequest("This account is already actived");
+            }
+
+            // update specific fields
             account.Active = true;
+            account.Password = _passwordHasher.HashPassword(account.Email, password);
+
             await _context.SaveChangesAsync();
             return Ok();
-        }        
+        }
 
-
-        [HttpPost("reset-password")]
+        [HttpPost("reset-password-request")]
         [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword([FromQuery][Required] string email) 
+        public async Task<IActionResult> ResetPasswordRequest([FromQuery][Required] string email) 
         {
             var user = await _context.Accounts.Include(d => d.Roles)
                                               .ThenInclude(p => p.Role)
@@ -113,17 +122,17 @@ namespace Events.API.Controllers
 
             try 
             {
-                var url = $"https://events.streamingcuba.com/reset-password?token={token}";
+                var url = $"https://admin.streamingcuba.com/reset-password?token={token}";
                 await _emailSender.SendEmailAsync(email,
-                                                  subject: "[StreamingCuba Team] Restablecer contraseña",
-                                                  message: $"<a href={url}>{url}</a>");
+                                                  subject: "[StreamingCuba Team]",
+                                                  message: $"{url}");
                 return Ok();                
             } 
             catch 
             {
                 return StatusCode(501); // Bad Gateway (Unable to send reset password link)
             }
-        }        
+        }
 
         private string GenerateJSONWebToken(Account user, short expires = 120)
         {
