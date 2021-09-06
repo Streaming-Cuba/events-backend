@@ -30,7 +30,7 @@ jobs:
          sed -i 's/EMAIL_SENDER_ADDRESS/${{ secrets.EMAIL_SENDER_ADDRESS }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_SENDER_DISPLAY_NAME/${{ secrets.EMAIL_SENDER_DISPLAY_NAME }}/g' Events.API/appsettings.json
          sed -i 's/RECAPTCHA_SECRET_KEY/${{ secrets.RECAPTCHA_SECRET_KEY }}/g' Events.API/appsettings.json
-         sed -i 's/RECAPTCHA_SECRET_KEY/${{ secrets.RECAPTCHA_SECRET_KEY }}/g' Events.API/appsettings.json
+         sed -i 's/RECAPTCHA_SITE_KEY/${{ secrets.RECAPTCHA_SITE_KEY }}/g' Events.API/appsettings.json
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
@@ -74,7 +74,7 @@ jobs:
          sed -i 's/EMAIL_SENDER_ADDRESS/${{ secrets.EMAIL_SENDER_ADDRESS }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_SENDER_DISPLAY_NAME/${{ secrets.EMAIL_SENDER_DISPLAY_NAME }}/g' Events.API/appsettings.json
          sed -i 's/RECAPTCHA_SECRET_KEY/${{ secrets.RECAPTCHA_SECRET_KEY }}/g' Events.API/appsettings.json
-         sed -i 's/RECAPTCHA_SECRET_KEY/${{ secrets.RECAPTCHA_SECRET_KEY }}/g' Events.API/appsettings.json
+         sed -i 's/RECAPTCHA_SITE_KEY/${{ secrets.RECAPTCHA_SITE_KEY }}/g' Events.API/appsettings.json
         
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
