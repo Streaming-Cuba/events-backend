@@ -32,12 +32,16 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> ListEvents() => Ok(await _context.Events.ToListAsync());
+        public async Task<ActionResult<List<Event>>> ListEvents([FromQuery] int? limit)
+            => Ok(limit.HasValue ? await _context.Events.Take(limit.Value).ToListAsync() : await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier([FromRoute] string identifier)
         {
             var item = await _context.Events
+                    .Include(d => d.Status)
+                    .Include(d => d.Category)
+                    .Include(d => d.Tags)
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.ChildGroups)
 
@@ -572,10 +576,8 @@ namespace Events.API.Controllers
                 return NotFound(id);
 
             await social.ApplyTo(_social, _context, _mapper, ModelState);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
             await _context.SaveChangesAsync();
             return Ok();
         }
