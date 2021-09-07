@@ -32,8 +32,28 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public async Task<ActionResult<List<Event>>> ListEvents([FromQuery] int? limit)
-            => Ok(limit.HasValue ? await _context.Events.Take(limit.Value).ToListAsync() : await _context.Events.ToListAsync());
+        public ActionResult<List<Event>> ListEvents([FromQuery] List<string> tags,
+                                                    [FromQuery] string status,
+                                                    [FromQuery] string category,
+                                                    [FromQuery] int? limit)
+        {
+            var pipeline = _context.Events.Include(d => d.Category)
+                                          .Include(d => d.Status)
+                                          .Include(d => d.Tags)
+                                          .AsEnumerable<Event>();
+
+            if (limit.HasValue)
+                pipeline = pipeline.Take(limit.Value);
+            if (tags != null)
+                pipeline = pipeline.Where(x => tags.All(y => x.Tags.Any(p => p.Tag.Name.Equals(y))));
+            if (!string.IsNullOrWhiteSpace(status))
+                pipeline = pipeline.Where(x => status.Equals(x.Status?.Name));
+            if (!string.IsNullOrWhiteSpace(category))
+                pipeline = pipeline.Where(x => category.Equals(x.Category?.Name));
+
+            return Ok(pipeline.ToList());
+        }
+        // => Ok(limit.HasValue ? await _context.Events.Take(limit.Value).ToListAsync() : await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier([FromRoute] string identifier)
