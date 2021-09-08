@@ -32,10 +32,10 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public ActionResult<List<Event>> ListEvents([FromQuery] List<string> tags,
-                                                    [FromQuery] string status,
-                                                    [FromQuery] string category,
-                                                    [FromQuery] int? limit)
+        public ActionResult<List<EventReadDTO>> ListEvents([FromQuery] List<string> tags,
+                                                           [FromQuery] string status,
+                                                           [FromQuery] string category,
+                                                           [FromQuery] int? limit)
         {
             var pipeline = _context.Events.Include(d => d.Category)
                                           .Include(d => d.Status)
@@ -51,7 +51,7 @@ namespace Events.API.Controllers
             if (!string.IsNullOrWhiteSpace(category))
                 pipeline = pipeline.Where(x => category.Equals(x.Category?.Name));
 
-            return Ok(pipeline.ToList());
+            return Ok(pipeline.Select(x => _mapper.Map<EventReadDTO>(x)).ToList());
         }
         // => Ok(limit.HasValue ? await _context.Events.Take(limit.Value).ToListAsync() : await _context.Events.ToListAsync());
 
