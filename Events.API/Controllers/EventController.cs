@@ -98,7 +98,7 @@ namespace Events.API.Controllers
 
 
         [HttpGet("{identifier}/votes")]
-        public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
+        public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery, Required] string type, [FromQuery] int? limit)
         {
             // [WARNING]: Super poor performance           
             var result = _context.GroupItems.Include(d => d.Group)
@@ -122,19 +122,22 @@ namespace Events.API.Controllers
                                                     p = p.GroupParent;
                                                 return p.Event.Identifier == identifier;
                                             })
-                                            .Select(x => x.Votes.FirstOrDefault(s => s.Type == type))
-                                            .Select(x => x == null ? new GroupItemVote() 
+                                            .Select(x =>
                                             {
-                                                Count = 0,
-                                                Type = type,                                                
-                                            } : x)
+                                                var r = x.Votes.FirstOrDefault(s => s.Type == type);
+                                                return r != null ? r : new GroupItemVote()
+                                                {
+                                                    Count = 0,
+                                                    Type = type,
+                                                    GroupItem = x,
+                                                    GroupItemId = x.Id
+                                                };
+                                            })
                                             .OrderByDescending(x => x.Count)
                                             .AsEnumerable();
 
             if (result != null)
             {
-                if (!string.IsNullOrWhiteSpace(type))
-                    result = result.Where(x => x.Type == type);
                 if (limit != null)
                     result = result.Take(limit.Value);
                 return Ok(result.Select(x => new
