@@ -90,6 +90,13 @@ namespace Events.API.Controllers
             return Ok(item);
         }
 
+        [HttpGet("{identifier}/votes-summary")]
+        public ActionResult VotesSummary([FromRoute] string identifier)
+        {
+            return null;
+        }
+
+
         [HttpGet("{identifier}/votes")]
         public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
         {

@@ -15,15 +15,15 @@ jobs:
 
       - name: Replace secrets
         run: |
-         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.QA_DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.QA_DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_USER/${{ secrets.QA_DATABASE_USER }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_PASSWORD/${{ secrets.QA_DATABASE_PASSWORD }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_USER/${{ secrets.DATABASE_USER }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_PASSWORD/${{ secrets.DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_HOST/${{ secrets.DATABASE_HOST }}/g' Events.API/appsettings.json
          sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
          sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
-         sed -i 's/MEDIA_PATH/${{ secrets.QA_MEDIA_PATH }}/g' Events.API/appsettings.json
+         sed -i 's/MEDIA_PATH/${{ secrets.MEDIA_PATH }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_TOKEN/${{ secrets.FACEBOOK_TOKEN }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_PAGE_IDENTIFIER/${{ secrets.FACEBOOK_PAGE_IDENTIFIER }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_HOST/${{ secrets.EMAIL_HOST }}/g' Events.API/appsettings.json
@@ -58,15 +58,15 @@ jobs:
 
       - name: Replace secrets
         run: |
-         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.QA_DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.QA_DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.QA_DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_USER/${{ secrets.QA_DATABASE_USER }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_PASSWORD/${{ secrets.QA_DATABASE_PASSWORD }}/g' Events.API/appsettings.json
-         sed -i 's/DATABASE_HOST/${{ secrets.QA_DATABASE_HOST }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_EVENTS_NAME/${{ secrets.DATABASE_EVENTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_ACCOUNTS_NAME/${{ secrets.DATABASE_ACCOUNTS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_SUBSCRIBERS_NAME/${{ secrets.DATABASE_SUBSCRIBERS_NAME }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_USER/${{ secrets.DATABASE_USER }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_PASSWORD/${{ secrets.DATABASE_PASSWORD }}/g' Events.API/appsettings.json
+         sed -i 's/DATABASE_HOST/${{ secrets.DATABASE_HOST }}/g' Events.API/appsettings.json
          sed -i 's/DATABASE_PORT/${{ secrets.DATABASE_PORT }}/g' Events.API/appsettings.json
          sed -i 's/JWT_KEY/${{ secrets.JWT_KEY }}/g' Events.API/appsettings.json
-         sed -i 's/MEDIA_PATH/${{ secrets.QA_MEDIA_PATH }}/g' Events.API/appsettings.json
+         sed -i 's/MEDIA_PATH/${{ secrets.MEDIA_PATH }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_TOKEN/${{ secrets.FACEBOOK_TOKEN }}/g' Events.API/appsettings.json
          sed -i 's/FACEBOOK_PAGE_IDENTIFIER/${{ secrets.FACEBOOK_PAGE_IDENTIFIER }}/g' Events.API/appsettings.json
          sed -i 's/EMAIL_HOST/${{ secrets.EMAIL_HOST }}/g' Events.API/appsettings.json
