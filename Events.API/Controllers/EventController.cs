@@ -98,44 +98,48 @@ namespace Events.API.Controllers
 
 
         [HttpGet("{identifier}/votes")]
-        public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
+        public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery, Required] string type, [FromQuery] int? limit)
         {
-            // [WARNING]: Super worst performance           
-            var result = _context.GroupItemVotes.Include(d => d.GroupItem)
-                                                .ThenInclude(p => p.Group)
-                                                .ThenInclude(p => p.Event)
+            // [WARNING]: Super poor performance           
+            var result = _context.GroupItems.Include(d => d.Group)
+                                            .ThenInclude(p => p.Event)
 
-                                                .Include(d => d.GroupItem)
-                                                .ThenInclude(p => p.Group)
-                                                .ThenInclude(p => p.GroupParent)
-                                                .ThenInclude(p => p.Event)
+                                            .Include(d => d.Group)
+                                            .ThenInclude(p => p.GroupParent)
+                                            .ThenInclude(p => p.Event)
 
-                                                .Include(d => d.GroupItem)
-                                                .ThenInclude(p => p.Group)
-                                                .ThenInclude(p => p.GroupParent)
+                                            .Include(d => d.Group)
+                                            .ThenInclude(p => p.GroupParent)
 
-                                                .Include(d => d.GroupItem)
+                                            .Include(d => d.Votes)
 
-                                                .AsSplitQuery() // perform in multiples queries                                                
-                                                .AsEnumerable()
-                                                .Where(x =>
+                                            .AsSplitQuery() // perform in multiples queries                                                
+                                            .AsEnumerable()
+                                            .Where(x =>
+                                            {
+                                                Group p = x.Group;
+                                                while (p.EventId == null)
+                                                    p = p.GroupParent;
+                                                return p.Event.Identifier == identifier;
+                                            })
+                                            .Select(x =>
+                                            {
+                                                var r = x.Votes.FirstOrDefault(s => s.Type == type);
+                                                return r != null ? r : new GroupItemVote()
                                                 {
-                                                    Group p = x.GroupItem.Group;
-                                                    while (p.EventId == null)
-                                                        p = p.GroupParent;
-                                                    return p.Event.Identifier == identifier;
-                                                })
-                                                .OrderByDescending(x => x.Count)
-                                                .AsEnumerable();
+                                                    Count = 0,
+                                                    Type = type,
+                                                    GroupItem = x,
+                                                    GroupItemId = x.Id
+                                                };
+                                            })
+                                            .OrderByDescending(x => x.Count)
+                                            .AsEnumerable();
 
             if (result != null)
             {
-                if (!string.IsNullOrWhiteSpace(type))
-                    result = result.Where(x => x.Type == type);
-
                 if (limit != null)
                     result = result.Take(limit.Value);
-
                 return Ok(result.Select(x => new
                 {
                     id = x.Id,
