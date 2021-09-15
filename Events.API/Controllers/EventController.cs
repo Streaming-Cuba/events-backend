@@ -111,6 +111,8 @@ namespace Events.API.Controllers
                                             .Include(d => d.Group)
                                             .ThenInclude(p => p.GroupParent)
 
+                                            .Include(d => d.Votes)
+
                                             .AsSplitQuery() // perform in multiples queries                                                
                                             .AsEnumerable()
                                             .Where(x =>
