@@ -32,12 +32,36 @@ namespace Events.API.Controllers
 
         #region Get models information
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Event>>> ListEvents() => Ok(await _context.Events.ToListAsync());
+        public ActionResult<List<EventReadDTO>> ListEvents([FromQuery] List<string> tags,
+                                                           [FromQuery] string status,
+                                                           [FromQuery] string category,
+                                                           [FromQuery] int? limit)
+        {
+            var pipeline = _context.Events.Include(d => d.Category)
+                                          .Include(d => d.Status)
+                                          .Include(d => d.Tags)
+                                          .AsEnumerable<Event>();
+
+            if (limit.HasValue)
+                pipeline = pipeline.Take(limit.Value);
+            if (tags != null)
+                pipeline = pipeline.Where(x => tags.All(y => x.Tags.Any(p => p.Tag.Name.Equals(y))));
+            if (!string.IsNullOrWhiteSpace(status))
+                pipeline = pipeline.Where(x => status.Equals(x.Status?.Name));
+            if (!string.IsNullOrWhiteSpace(category))
+                pipeline = pipeline.Where(x => category.Equals(x.Category?.Name));
+
+            return Ok(pipeline.Select(x => _mapper.Map<EventReadDTO>(x)).ToList());
+        }
+        // => Ok(limit.HasValue ? await _context.Events.Take(limit.Value).ToListAsync() : await _context.Events.ToListAsync());
 
         [HttpGet("{identifier}")]
         public async Task<ActionResult<Event>> EventByIdentifier([FromRoute] string identifier)
         {
             var item = await _context.Events
+                    .Include(d => d.Status)
+                    .Include(d => d.Category)
+                    .Include(d => d.Tags)
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.ChildGroups)
 
@@ -47,13 +71,11 @@ namespace Events.API.Controllers
 
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.Items)
-                    .ThenInclude(p => p.MetadataJson)
 
                     // second level
                     .Include(d => d.Groups)
                     .ThenInclude(p => p.ChildGroups)
                     .ThenInclude(p => p.Items)
-                    .ThenInclude(p => p.MetadataJson)
                     .AsSplitQuery() // perform in multiples queries
 
                     .SingleOrDefaultAsync(x => x.Identifier == identifier);
@@ -67,6 +89,13 @@ namespace Events.API.Controllers
 
             return Ok(item);
         }
+
+        [HttpGet("{identifier}/votes-summary")]
+        public ActionResult VotesSummary([FromRoute] string identifier)
+        {
+            return null;
+        }
+
 
         [HttpGet("{identifier}/votes")]
         public ActionResult VotesByIdentifier([FromRoute] string identifier, [FromQuery] string type, [FromQuery] int? limit)
@@ -86,7 +115,6 @@ namespace Events.API.Controllers
                                                 .ThenInclude(p => p.GroupParent)
 
                                                 .Include(d => d.GroupItem)
-                                                .ThenInclude(p => p.MetadataJson)
 
                                                 .AsSplitQuery() // perform in multiples queries                                                
                                                 .AsEnumerable()
@@ -575,10 +603,8 @@ namespace Events.API.Controllers
                 return NotFound(id);
 
             await social.ApplyTo(_social, _context, _mapper, ModelState);
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
             await _context.SaveChangesAsync();
             return Ok();
         }

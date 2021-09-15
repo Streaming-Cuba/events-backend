@@ -257,4 +257,41 @@ namespace Events.API.DTO
             return await base.EnsureValidStateOnPatch(context, ModelState);
         }
     }
+
+    public class EventReadDTO 
+    {
+        public int Id { get; set; }
+
+        public string Identifier { get; set; }
+
+        public string Name { get; set; }
+
+        public string Subtitle { get; set; }
+
+        public string Description { get; set; }
+
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
+
+        public string Status { get; set; }
+
+        public int StatusId { get; set; }
+
+        public string Organizer { get; set; }
+
+        public string Category { get; set; }
+
+        public ICollection<string> Tags { get; set; }
+
+        public ICollection<string> Socials { get; set; }
+
+        public string CoverPath { get; set; }
+
+        public string ShortCoverPath { get; set; }
+
+        public ICollection<Group> Groups { get; set; }
+
+        public string Location { get; set; }       
+    }
 }
