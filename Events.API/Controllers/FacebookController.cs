@@ -28,43 +28,29 @@ namespace Events.API.Controllers
             _service = service;
         }
 
-        private void AggregateDictionaries<K>(Dictionary<K, long> a, Dictionary<K, long> b)
-        {
-            if (b != null) 
-            {
-                foreach (var pair in b)
-                {
-                    if (a.ContainsKey(pair.Key))
-                        a[pair.Key] += pair.Value;
-                    else
-                        a.Add(pair.Key, pair.Value);
-                }
-            }
-        }
+        // private void AggregateDictionaries<K>(Dictionary<K, long> a, Dictionary<K, long> b)
+        // {
+        //     if (b != null) 
+        //     {
+        //         foreach (var pair in b)
+        //         {
+        //             if (a.ContainsKey(pair.Key))
+        //                 a[pair.Key] += pair.Value;
+        //             else
+        //                 a.Add(pair.Key, pair.Value);
+        //         }
+        //     }
+        // }
 
         [HttpGet("videos-info")]
         [Authorize(Roles = "Administrador")]
         public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
         {
             var videos = await _service.GetVideos(since, until, "title", "length");
-            var rankingByCountryTotal = new Dictionary<string, long>();
-            var rankingByRegionTotal = new Dictionary<string, long>();
-            var demographicTotal = new Dictionary<string, long>();
-            var reactionsTotal = new Dictionary<string, long>();
 
             var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x =>
             {
                 var id = x["id"] as string;
-                var countries = await _service.GetViewsByCountry(id);
-                var regions = await _service.GetViewsByRegion(id);
-                var demographic = await _service.GetViewsByGenderAge(id);
-                var reactions = await _service.GetVideoReactionsByType(id);
-
-                AggregateDictionaries(rankingByCountryTotal, countries);
-                AggregateDictionaries(rankingByRegionTotal, regions);
-                AggregateDictionaries(demographicTotal, demographic);
-                AggregateDictionaries(reactionsTotal, reactions);
-
                 var actionsByType = await _service.GetVideoActionsCountByType(id);                
 
                 return new
@@ -76,29 +62,18 @@ namespace Events.API.Controllers
                     comments = actionsByType.ContainsKey("comment") ? actionsByType["comment"] : 0,
                     shares = actionsByType.ContainsKey("share") ? actionsByType["share"] : 0,
                     crosspost_count = await _service.GetCrosspostVideoCount(id),
-                    reactions = reactions,
+                    total_view_time = await _service.GetVideoTotalViewTime(id),
+                    reactions = await _service.GetVideoReactionsByType(id),
                     length = x["length"],
-                    ranking_by_region = regions,
-                    ranking_by_country = countries,
-                    demographic = demographic
+                    ranking_by_region = await _service.GetViewsByRegion(id),
+                    ranking_by_country = await _service.GetViewsByCountry(id),
                 };
             }));
             
             return Ok(new
             {
                 videos_count = videosInfo.Length,
-                total_reach = videosInfo.Sum(x => x.reach),
-                total_views = videosInfo.Sum(x => x.views),
-                total_countries = rankingByCountryTotal.Count,
-                total_regions = rankingByRegionTotal.Count,
-                total_comments = videosInfo.Sum(x => x.comments),
-                total_shares = videosInfo.Sum(x => x.shares),
-                total_crossposts = videosInfo.Sum(x => x.crosspost_count),
-                total_reactions = reactionsTotal,
                 videos = videosInfo,
-                ranking_by_region = rankingByRegionTotal,
-                ranking_by_country = rankingByCountryTotal,
-                demographic = demographicTotal
             });
         }
     }
