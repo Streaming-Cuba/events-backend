@@ -124,6 +124,18 @@ namespace Events.API.Services
                        .Value<long>();
         }
 
+        public async Task<long?> GetVideoTotalViewTime(string videoId)
+        {
+            var data = await Request($"{videoId}/video_insights/total_video_view_total_time?access_token={_accessToken}");
+
+            if (data.Count == 0)
+                return null;
+
+            return data.First()["values"]
+                       .First()["value"]
+                       .Value<long>();
+        }
+
         public async Task<long?> GetVideoTotalImpressions(string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_impressions?access_token={_accessToken}");
