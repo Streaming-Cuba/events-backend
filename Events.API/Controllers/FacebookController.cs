@@ -44,29 +44,29 @@ namespace Events.API.Controllers
 
         [HttpGet("videos-info")]
         [Authorize(Roles = "Administrador")]
-        public async Task<ActionResult> GetVideosInfo([FromQuery] DateTime since, [FromQuery] DateTime until)
+        public async Task<ActionResult> GetVideosInfo([FromQuery] string pageIdentifier,  [FromQuery] DateTime since, [FromQuery] DateTime until)
         {
-            var videos = await _service.GetVideos(since, until, "title", "length");
+            var videos = await _service.GetVideos(pageIdentifier, since, until, "title", "length");
 
             var videosInfo = await Task.WhenAll(videos.AsParallel().Select(async x =>
             {
                 var id = x["id"] as string;
-                var actionsByType = await _service.GetVideoActionsCountByType(id);                
+                var actionsByType = await _service.GetVideoActionsCountByType(pageIdentifier, id);                
 
                 return new
                 {
                     title = (x.ContainsKey("title") ? x["title"] : null),
                     date = x["created_time"],
-                    reach = await _service.GetVideoTotalImpressions(id),
-                    views = await _service.GetVideoTotalViews(id),
+                    reach = await _service.GetVideoTotalImpressions(pageIdentifier, id),
+                    views = await _service.GetVideoTotalViews(pageIdentifier, id),
                     comments = actionsByType.ContainsKey("comment") ? actionsByType["comment"] : 0,
                     shares = actionsByType.ContainsKey("share") ? actionsByType["share"] : 0,
-                    crosspost_count = await _service.GetCrosspostVideoCount(id),
-                    total_view_time = await _service.GetVideoTotalViewTime(id),
-                    reactions = await _service.GetVideoReactionsByType(id),
+                    crosspost_count = await _service.GetCrosspostVideoCount(pageIdentifier, id),
+                    total_view_time = await _service.GetVideoTotalViewTime(pageIdentifier, id),
+                    reactions = await _service.GetVideoReactionsByType(pageIdentifier, id),
                     length = x["length"],
-                    ranking_by_region = await _service.GetViewsByRegion(id),
-                    ranking_by_country = await _service.GetViewsByCountry(id),
+                    ranking_by_region = await _service.GetViewsByRegion(pageIdentifier, id),
+                    ranking_by_country = await _service.GetViewsByCountry(pageIdentifier, id),
                 };
             }));
             
