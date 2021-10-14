@@ -13,7 +13,6 @@ namespace Events.API.Services
     {
         private readonly HttpClient _client;
         private readonly string _accessToken;
-        private readonly string _pageIdentifier;
         private const string ApiGraphVersion = "v11.0";
         private const string BaseUrl = "https://graph.facebook.com";
 
@@ -30,7 +29,6 @@ namespace Events.API.Services
             client.DefaultRequestHeaders.Add("Accept", "application/json");
 
             _accessToken = configuration["Facebook:Token"];
-            _pageIdentifier = configuration["Facebook:PageIdentifier"];
 
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }
@@ -61,25 +59,25 @@ namespace Events.API.Services
             return tokens;
         }
 
-        public async Task<string> GetId() 
+        public async Task<string> GetId(string pageIdentifier) 
         {
             if (_pageIDCache == null)
-                _pageIDCache = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{_pageIdentifier}?access_token={_accessToken}"))["id"]
+                _pageIDCache = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{pageIdentifier}?access_token={_accessToken}"))["id"]
                                       .ToString();
             return _pageIDCache;
         }
 
-        public async Task<List<Dictionary<string, object>>> GetVideos(DateTime start, DateTime end, params string[] fields)
+        public async Task<List<Dictionary<string, object>>> GetVideos(string pageIdentifier, DateTime start, DateTime end, params string[] fields)
         {
             if ((end - start).Days >= 90)
                 throw new ArgumentOutOfRangeException("Max time diference is of 90 days");
 
-            return (await Request($"{_pageIdentifier}/videos?access_token={_accessToken}&fields=created_time,{string.Join(",", fields)}&since={start.ToString("s")}&until={end.ToString("s")}"))
+            return (await Request($"{pageIdentifier}/videos?access_token={_accessToken}&fields=created_time,{string.Join(",", fields)}&since={start.ToString("s")}&until={end.ToString("s")}"))
                     .Select(x => x.ToObject<Dictionary<string, object>>())
                     .ToList();
         }
 
-        public async Task<long?> GetVideoCountComments(string videoId)
+        public async Task<long?> GetVideoCountComments(string pageIdentifier, string videoId)
         {
             var r = JObject.Parse(await _client.GetStringAsync($"/{ApiGraphVersion}/{videoId}/comments?access_token={_accessToken}&limit=0&summary=1"));
 
@@ -88,7 +86,7 @@ namespace Events.API.Services
             return null;
         }
 
-        public async Task<Dictionary<string, long>> GetVideoReactionsByType(string videoId)
+        public async Task<Dictionary<string, long>> GetVideoReactionsByType(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_reactions_by_type_total?access_token={_accessToken}");
 
@@ -100,7 +98,7 @@ namespace Events.API.Services
                        .ToObject<Dictionary<string, long>>();
         }
 
-        public async Task<Dictionary<string, long>> GetVideoActionsCountByType(string videoId)
+        public async Task<Dictionary<string, long>> GetVideoActionsCountByType(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_stories_by_action_type?access_token={_accessToken}");
 
@@ -112,7 +110,7 @@ namespace Events.API.Services
                        .ToObject<Dictionary<string, long>>();        
         }
 
-        public async Task<long?> GetVideoTotalViews(string videoId)
+        public async Task<long?> GetVideoTotalViews(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_views?access_token={_accessToken}");
 
@@ -124,7 +122,7 @@ namespace Events.API.Services
                        .Value<long>();
         }
 
-        public async Task<long?> GetVideoTotalViewTime(string videoId)
+        public async Task<long?> GetVideoTotalViewTime(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_view_total_time?access_token={_accessToken}");
 
@@ -136,7 +134,7 @@ namespace Events.API.Services
                        .Value<long>();
         }
 
-        public async Task<long?> GetVideoTotalImpressions(string videoId)
+        public async Task<long?> GetVideoTotalImpressions(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_impressions?access_token={_accessToken}");
 
@@ -148,7 +146,7 @@ namespace Events.API.Services
                        .Value<long?>();
         }
 
-        public async Task<long?> GetCrosspostVideoCount(string videoId)
+        public async Task<long?> GetCrosspostVideoCount(string pageIdentifier, string videoId)
             => (await Request($"{videoId}/crosspost_shared_pages?access_token={_accessToken}&limit=1000")).Count;
 
         public async Task<Dictionary<string, long>> GetViewsByGenderAge(string videoId)
@@ -165,7 +163,7 @@ namespace Events.API.Services
                        .ToDictionary(k => k.Key, v => v.Value);
         }
 
-        public async Task<Dictionary<string, long>> GetViewsByCountry(string videoId)
+        public async Task<Dictionary<string, long>> GetViewsByCountry(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_view_time_by_country_id?access_token={_accessToken}");
 
@@ -179,7 +177,7 @@ namespace Events.API.Services
                        .ToDictionary(k => k.Key, v => v.Value);
         }
 
-        public async Task<Dictionary<string, long>> GetViewsByRegion(string videoId)
+        public async Task<Dictionary<string, long>> GetViewsByRegion(string pageIdentifier, string videoId)
         {
             var data = await Request($"{videoId}/video_insights/total_video_view_time_by_region_id?access_token={_accessToken}");
 
