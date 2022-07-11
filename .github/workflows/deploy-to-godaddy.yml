@@ -42,7 +42,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Installing Entity Framework Tools
-        run: dotnet tool install --global dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 3.1.13
         
       - name: Updating Databases
         run: |
